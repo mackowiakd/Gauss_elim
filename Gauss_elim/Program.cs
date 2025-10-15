@@ -24,8 +24,9 @@ namespace Gauss_elim
             string inputPath = "matrix.txt";
             string outputPath = "result_1.txt";
             Matrix_operations.MatrixHandler matrixHandler = new Matrix_operations.MatrixHandler(inputPath);
-            //matrixHandler.checkSize();
-            matrixHandler.GaussEliminationManaged();
+            matrixHandler.checkSize();
+            matrixHandler.PrintMatrix(matrixHandler.data, matrixHandler.rows, matrixHandler.cols);
+           // matrixHandler.GaussEliminationManaged();
             matrixHandler.SaveMatrixToFile(outputPath, matrixHandler.data, matrixHandler.rows, matrixHandler.cols);
         }
     }
@@ -44,7 +45,7 @@ namespace Matrix_operations
 
         int ymm = 8; // liczba wierszy przetwarzanych jednocześnie przez YMM
         
-        private int rowOffset=0;
+        private int rowOffset=0; // zmienna offset powinna wskazywac ile ymm mozna sie przesunac aby dostac aktulane dane (w przypadku resizingu)
         private int colOffset=0;
         private const float EPS = 1.0e-5f;
 
@@ -77,7 +78,7 @@ namespace Matrix_operations
 
             return (values.ToArray(), rows, cols);
         }
-        public void ZeroUntilEps(float[] data, int startIndex,  float eps = 1.0e-5f)
+        public void ZeroUntilEps(float[] data, int startIndex,  float eps )
         {
             // przechodzimy po wierszu od startIndex do startIndex + rejestr YMM (8 float)
             for (int i = startIndex; i < startIndex + ymm; i++)
@@ -113,9 +114,6 @@ namespace Matrix_operations
         }
 
 
-        /* Metoda spr rozmiar -> ewnetulane uzupelnienie 0 do size mod16 
-            -> alokacja nowej tablicy o rom wiekszej 
-         */
 
         public void checkSize()
         {
@@ -131,7 +129,7 @@ namespace Matrix_operations
 
             else if (cols>ymm && cols % ymm != 0)
             {
-                newCols = (cols / ymm) + 1;
+                newCols = (int)Math.Ceiling((double)cols / ymm) * ymm;
                 newRows = newCols;
             } 
 
@@ -159,7 +157,7 @@ namespace Matrix_operations
             rows = newCols;
 
         }
-        //input zbyt bliskie wartosci 0 -> AV albo NaN
+      
 
         public  void ApplyPivot(float[] data, int rows, int cols, int currentRow)
         {
@@ -177,7 +175,7 @@ namespace Matrix_operations
                 }
             }
 
-            // Jeśli trzeba — zamień wiersze
+            // zamień wiersze
             if (pivotRow != currentRow)
             {
                 for (int j = 0; j < cols; j++)
@@ -189,25 +187,38 @@ namespace Matrix_operations
             }
         }
 
+        public void PrintMatrix(float[] data, int rows, int cols)
+        {
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < cols; c++)
+                {
+                    Console.Write(data[r * cols + c].ToString("F2") + " ");
+                }
+                Console.WriteLine();
+            }
+            Console.WriteLine();
+        }
+
+        /*zmienne offset do przemyslenia bo zawsze dokladamy > niz 8 wierzy i kolumn 0
+         * wtedy trzeba zaczac od rowOffset ale col =0 i zmienia sie caly algorytm...
+         */
         public void GaussEliminationManaged()
         {
             for (int y = 0; y < cols-1; y++)
             {
                 //zawsze pivoting
                 ApplyPivot(data, rows, cols, y);
-               float pivot = data[y * cols + (y + colOffset)];
+               float pivot = data[y * cols + (y )];
 
                 for (int n = y; n < rows-1 ; n++)
                 {
-                    float elim = data[(n + 1) * cols + (y + colOffset)];
+                    float elim = data[(n + 1) * cols + (y )];
 
                     //dzielenie wiersza na czesci po 8 float 
                     for (int x = 0; x < cols; x += ymm)
                         {
-                        /* na ty poziomie pivot moze zostac zmieniony <=> x==0
-                         * -> potem juz tylko odjemowanie i tak nic by sie nie wyzerowalo
-                         * zapis zminay pivotingu -> elim_gaussa musi zwrocic elimNew aby spr czy elim!=elimNew
-                         */
+                  
                         Console.WriteLine($"[{y},{n}] elim={elim}, pivot={pivot}");
                         
 
