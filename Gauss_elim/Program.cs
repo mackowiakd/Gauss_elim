@@ -26,7 +26,7 @@ namespace Gauss_elim
             Matrix_operations.MatrixHandler matrixHandler = new Matrix_operations.MatrixHandler(inputPath);
             matrixHandler.checkSize();
             matrixHandler.PrintMatrix(matrixHandler.data, matrixHandler.rows, matrixHandler.cols);
-           // matrixHandler.GaussEliminationManaged();
+            matrixHandler.GaussEliminationManaged();
             matrixHandler.SaveMatrixToFile(outputPath, matrixHandler.data, matrixHandler.rows, matrixHandler.cols);
         }
     }
@@ -231,18 +231,22 @@ namespace Matrix_operations
                             value2[0] = rows / 8 - 1;
                             value2[1] = y * rows + x;
                             value2[2] = rows * cols;
-                           
+
                             fixed (float* rowN = &data[y * rows + x]) // const for all col elim
                             fixed (float* rowNext = &data[(n + 1) * cols + x])
-                            
+
 
                             {
                                 //zamiast 3 agr int -> array size 3 (r8 w asm)
-                                NativeMethods.gauss_elimination(rowN, rowNext, value1, value2);
-                                ZeroUntilEps(data, (n + 1) * cols + x, EPS);
+                                //if pivot ==0 => all row can be skiped
+                                if (pivot != 0)
+                                {
+                                    NativeMethods.gauss_elimination(rowN, rowNext, value1, value2);
+                                    ZeroUntilEps(data, (n + 1) * cols + x, EPS);
                                 }
-                                
+
                             }
+                        }
                         }
                     
 
