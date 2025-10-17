@@ -33,7 +33,26 @@ void MatrixHandler:: LoadMatrixFromFile(const std::string& path) {
     file.close();
 }
 
-extern "C" __declspec(dllexport)
+//  Zapis macierzy do pliku
+void MatrixHandler:: SaveMatrixToFile(const std::string& path)  {
+    std::ofstream file(path, std::ios::trunc);
+    if (!file.is_open())
+        throw std::runtime_error("Nie mozna zapisac pliku: " + path);
+
+    file << std::fixed << std::setprecision(6);
+
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+            file << data[r * cols + c];
+            if (c < cols - 1)
+                file << " ";
+        }
+        file << "\n";
+    }
+
+    file.close();
+    // std::cout << "Plik zapisano w: " << path << std::endl;
+}
 void MatrixHandler:: GaussElimination() {
     int y = 0;
     int n = 0;
@@ -47,7 +66,7 @@ void MatrixHandler:: GaussElimination() {
             for (int n = y; n < rows - 1; n++) {
                 for (int j = 0; j < cols; j++) {
 
-                    at(n, j) -= factor * at(y, j);
+                    at(n+1, j) -= factor * at(n, j);
                 }
             }
         }
@@ -58,3 +77,10 @@ void MatrixHandler:: GaussElimination() {
     }
 
 };
+
+extern "C" __declspec(dllexport)
+void start_gauss(const char* input_path, const char* output_path) {
+    MatrixHandler matrix(input_path);
+    matrix.GaussElimination();
+    matrix.SaveMatrixToFile(output_path);
+}

@@ -29,7 +29,7 @@ public:
         return data[r * cols + c];
     }
 
-   
+    void SaveMatrixToFile(const std::string& path);
 
     // Przyk³adowa metoda: zerowanie ma³ych wartoœci
     void ZeroUntilEps(int startRow, int startCol) {
@@ -43,26 +43,6 @@ public:
 
 
 
-    //  Zapis macierzy do pliku
-    void SaveMatrixToFile(const std::string& path) const {
-        std::ofstream file(path, std::ios::trunc);
-        if (!file.is_open())
-            throw std::runtime_error("Nie mozna zapisac pliku: " + path);
-
-        file << std::fixed << std::setprecision(6);
-
-        for (int r = 0; r < rows; ++r) {
-            for (int c = 0; c < cols; ++c) {
-                file << data[r * cols + c];
-                if (c < cols - 1)
-                    file << " ";
-            }
-            file << "\n";
-        }
-
-        file.close();
-       // std::cout << "Plik zapisano w: " << path << std::endl;
-    }
 
     //  Pivotowanie (czêœciowe)
     float ApplyPivot(int currentRow) {

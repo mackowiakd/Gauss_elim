@@ -19,12 +19,14 @@ namespace Gauss_elim
         static void Main(string[] args)
         {
             string inputPath = "matrix.txt";
-            string outputPath = "result_1.txt";
-            MatrixHandler.MatrixHandler matrixHandler = new MatrixHandler.MatrixHandler(inputPath);
-            matrixHandler.checkSize();
-            matrixHandler.PrintMatrix(matrixHandler.data, matrixHandler.rows, matrixHandler.cols);
-            matrixHandler.GaussEliminationManaged();
-            matrixHandler.SaveMatrixToFile(outputPath, matrixHandler.data, matrixHandler.rows, matrixHandler.cols);
+            //string outputPath = "result_1.txt";
+            //MatrixHandler.MatrixHandler matrixHandler = new MatrixHandler.MatrixHandler(inputPath);
+            //matrixHandler.checkSize();
+            //matrixHandler.PrintMatrix(matrixHandler.data, matrixHandler.rows, matrixHandler.cols);
+            //matrixHandler.GaussEliminationManaged();
+            //matrixHandler.SaveMatrixToFile(outputPath, matrixHandler.data, matrixHandler.rows, matrixHandler.cols);
+
+            NativeMethods.NativeMethods.start_gauss(inputPath, "result_2.txt");
         }
     }
 }
