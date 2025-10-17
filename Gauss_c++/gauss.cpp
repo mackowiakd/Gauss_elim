@@ -32,3 +32,29 @@ void MatrixHandler:: LoadMatrixFromFile(const std::string& path) {
     data = std::move(values);
     file.close();
 }
+
+extern "C" __declspec(dllexport)
+void MatrixHandler:: GaussElimination() {
+    int y = 0;
+    int n = 0;
+
+    for (y; y < rows - 1; y++) {
+
+        if (ApplyPivot(y) > EPS) {
+
+            float factor = at(n + 1, y) / at(n, y);
+
+            for (int n = y; n < rows - 1; n++) {
+                for (int j = 0; j < cols; j++) {
+
+                    at(n, j) -= factor * at(y, j);
+                }
+            }
+        }
+
+        else {
+            ZeroUntilEps(y, y);
+        }
+    }
+
+};
