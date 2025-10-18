@@ -14,6 +14,7 @@ class MatrixHandler {
 public:
     int rows = 0;
     int cols = 0;
+    float pivot = 0.0f;
     std::vector<float> data;        // macierz w postaci 1D (row-major)
 
 
@@ -45,27 +46,7 @@ public:
 
 
     //  Pivotowanie (czêœciowe)
-    float ApplyPivot(int currentRow) {
-        int pivotRow = currentRow;
-        float maxAbs = std::fabs(data[currentRow * cols + currentRow]); //aktulany pivot
-
-        // znajdŸ wiersz z najwiêkszym elementem w kolumnie
-        for (int i = currentRow + 1; i < rows; ++i) {
-            float val = std::fabs(data[i * cols + currentRow]);
-            if (val > maxAbs) {
-                maxAbs = val;
-                pivotRow = i;
-            }
-        }
-
-        // jeœli trzeba, zamieñ wiersze
-        if (pivotRow != currentRow) {
-            for (int j = 0; j < cols; ++j) {
-                std::swap(data[currentRow * cols + j], data[pivotRow * cols + j]);
-            }
-        }
-        return maxAbs;
-    }
+    float ApplyPivot(int currentRow);
 
     void GaussElimination();
 };

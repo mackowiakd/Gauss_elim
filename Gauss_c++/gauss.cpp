@@ -53,20 +53,48 @@ void MatrixHandler:: SaveMatrixToFile(const std::string& path)  {
     file.close();
     // std::cout << "Plik zapisano w: " << path << std::endl;
 }
+
+//  Pivotowanie (czêœciowe)
+float MatrixHandler:: ApplyPivot(int currentRow) {
+    int pivotRow = currentRow;
+    float maxAbs = std::fabs(data[currentRow * cols + currentRow]); //aktulany pivot
+    //data[r * cols + c];
+    // znajdŸ wiersz z najwiêkszym elementem w kolumnie
+    for (int i = currentRow + 1; i < rows; ++i) {
+        float val = std::fabs(data[i * cols + currentRow]);
+        if (val > maxAbs) {
+            maxAbs = val;
+            pivotRow = i;
+        }
+    }
+
+    // jeœli trzeba, zamieñ wiersze
+    if (pivotRow != currentRow) {
+        for (int j = 0; j < cols; ++j) {
+            std::swap(data[currentRow * cols + j], data[pivotRow * cols + j]);
+        }
+    }
+    return pivotRow;
+}
+
+
 void MatrixHandler:: GaussElimination() {
     int y = 0;
-    int n = 0;
+    
+	
+    for (y; y < cols - 1; y++) {
+        int n = y;
 
-    for (y; y < rows - 1; y++) {
+        pivot = ApplyPivot(n);
 
-        if (ApplyPivot(y) > EPS) {
+        if (pivot > EPS) {
 
-            float factor = at(n + 1, y) / at(n, y);
 
             for (int n = y; n < rows - 1; n++) {
+                float factor = at(n + 1, y) / pivot;
                 for (int j = 0; j < cols; j++) {
 
-                    at(n+1, j) -= factor * at(n, j);
+                    at(n+1, j) -= factor * at(y, j); // factor* pivot[j]
                 }
             }
         }
