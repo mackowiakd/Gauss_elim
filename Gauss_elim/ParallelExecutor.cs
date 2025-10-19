@@ -10,12 +10,18 @@ namespace Gauss_elim.threading
 {
     public class ParallelExecutor
     {
+        int maxThreads = Environment.ProcessorCount;
         /* Uruchamia równoległe przetwarzanie eliminacji Gaussa -> musi isc w petli po ilsoci col => modyf funkcje (obciac petle y)
          * + pivoting tez przed watkami
          * input - ścieżka do pliku wejściowego
          * output - ścieżka do pliku wyjściowego
          * threadCount - liczba wątków do uruchomienia
          * mode - "cpp" lub "asm" określający, której implementacji użyć
+         * 
+         * musi dostac:
+         *      rozmiar macierzy 
+         *      odpowiedn, metode do pivotingu (asm ma inna niz cpp)
+         * 
          */
         public static void RunParallel(string input, string output, int threadCount, string mode)
         {

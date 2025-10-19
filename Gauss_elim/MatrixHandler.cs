@@ -184,9 +184,9 @@ namespace Gauss_elim.MatrixHandler
                 ApplyPivot(data, rows, cols, y);
                 float pivot = data[y * cols + (y)];
 
-                for (int n = y; n < rows - 1; n++)
+                for (int n = y; n < rows - 1; n++) // kazde n wiersz dla innega watku
                 {
-                    float elim = data[(n + 1) * cols + (y)];
+                    float elim = data[(n + 1) * cols + (y)]; // element do eliminacji z rowNext
 
                     //dzielenie wiersza na czesci po 8 float 
                     for (int x = 0; x < cols; x += ymm)

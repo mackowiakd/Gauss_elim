@@ -42,4 +42,5 @@ public:
     void ApplyPivot(int currentRow);
 
     void GaussElimination();
+    void GaussElimination_oneTask();
 };

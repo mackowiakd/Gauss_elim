@@ -93,7 +93,6 @@ void MatrixHandler:: GaussElimination() {
    
     for (int y=0; y < cols - 1; y++) {
         
-		
         
         ApplyPivot(y);
         pivot = at(y, y);
@@ -101,7 +100,8 @@ void MatrixHandler:: GaussElimination() {
         if (std::fabs(pivot) > EPS) {
 
 			
-            for (int n = y; n < rows - 1; n++) {
+            for (int n = y; n < rows - 1; n++) // each row -> different thread
+            {
                 float factor = at(n + 1, y) / pivot;
                 for (int j = y; j < cols; j++) {
 
@@ -109,7 +109,7 @@ void MatrixHandler:: GaussElimination() {
                 }
             }
         }
-
+		//threads.join_all();
 		 
          ZeroUntilEps(y, y);
          print_matrix();
@@ -117,6 +117,8 @@ void MatrixHandler:: GaussElimination() {
     }
 
 };
+
+
 
 void MatrixHandler::print_matrix(){
     
@@ -128,6 +130,22 @@ void MatrixHandler::print_matrix(){
     }
     std::cout << "\n";
 
+}
+
+void MatrixHandler::GaussElimination_oneTask()  //=> ten kod muis byc w klasie ParallelExecution
+{
+    for (int y = 0; y < cols - 1; y++) {
+
+
+        ApplyPivot(y);
+        pivot = at(y, y);
+        //threading start for n= y+1 to rows-1
+        // gauss elimination(n)
+        //threads.join_all();
+
+        ZeroUntilEps(y, y);
+        print_matrix();
+    }
 }
 
 extern "C" __declspec(dllexport)
