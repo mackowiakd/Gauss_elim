@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -10,11 +11,11 @@
 
 class MatrixHandler {
     static constexpr float EPS = 1.0e-5f;
-
+    
 public:
     int rows = 0;
     int cols = 0;
-    float pivot = 0.0f;
+    float pivot = 10.0f;
     std::vector<float> data;        // macierz w postaci 1D (row-major)
 
 
@@ -33,16 +34,7 @@ public:
     void SaveMatrixToFile(const std::string& path);
 
     // Przyk³adowa metoda: zerowanie ma³ych wartoœci
-    void ZeroUntilEps(int startRow, int startCol) {
-        for (int r = startRow; r < rows; ++r) {
-            for (int c = startCol; c < cols; ++c) {
-                if (std::abs(at(r, c)) < EPS)
-                    at(r, c) = 0.0f;
-            }
-        }
-    }
-
-
+    void ZeroUntilEps(int startRow, int startCol);
 
 
     //  Pivotowanie (czêœciowe)

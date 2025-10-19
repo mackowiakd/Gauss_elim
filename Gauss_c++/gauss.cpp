@@ -16,6 +16,7 @@ void MatrixHandler:: LoadMatrixFromFile(const std::string& path) {
         float val;
         while (iss >> val) {
             rowVals.push_back(val);
+			std::cout << val << " ";
         }
 
         if (rowVals.empty()) continue;
@@ -27,6 +28,7 @@ void MatrixHandler:: LoadMatrixFromFile(const std::string& path) {
 
         values.insert(values.end(), rowVals.begin(), rowVals.end());
         rows++;
+        std:: cout<<"\n";
     }
 
     data = std::move(values);
@@ -54,14 +56,22 @@ void MatrixHandler:: SaveMatrixToFile(const std::string& path)  {
     // std::cout << "Plik zapisano w: " << path << std::endl;
 }
 
+void MatrixHandler:: ZeroUntilEps(int startRow, int startCol) {
+    for (int r = startRow+1; r < rows; r++) {
+        for (int c = startCol; c < cols; c++) {
+            if (std::fabs(at(r, c)) <= EPS)
+                at(r, c) = 0.0f;
+        }
+    }
+}
 //  Pivotowanie (czêœciowe)
 float MatrixHandler:: ApplyPivot(int currentRow) {
     int pivotRow = currentRow;
     float maxAbs = std::fabs(data[currentRow * cols + currentRow]); //aktulany pivot
     //data[r * cols + c];
     // znajdŸ wiersz z najwiêkszym elementem w kolumnie
-    for (int i = currentRow + 1; i < rows; ++i) {
-        float val = std::fabs(data[i * cols + currentRow]);
+    for (int i = currentRow + 1; i < rows-1; i++) {
+        float val = std::fabs(data[i * cols + i]);
         if (val > maxAbs) {
             maxAbs = val;
             pivotRow = i;
@@ -70,38 +80,37 @@ float MatrixHandler:: ApplyPivot(int currentRow) {
 
     // jeœli trzeba, zamieñ wiersze
     if (pivotRow != currentRow) {
-        for (int j = 0; j < cols; ++j) {
+        for (int j = 0; j < cols; j++) {
             std::swap(data[currentRow * cols + j], data[pivotRow * cols + j]);
         }
     }
-    return pivotRow;
+    return at(pivotRow, pivotRow);
 }
 
 
 void MatrixHandler:: GaussElimination() {
-    int y = 0;
-    
-	
-    for (y; y < cols - 1; y++) {
+   
+    for (int y=0; y < cols - 1; y++) {
         int n = y;
-
-        pivot = ApplyPivot(n);
+		pivot = at(y, y);
+        //pivot = ApplyPivot(n);
+		//std::cout <<"\n" << pivot << "\n";
 
         if (pivot > EPS) {
 
-
+            
             for (int n = y; n < rows - 1; n++) {
                 float factor = at(n + 1, y) / pivot;
-                for (int j = 0; j < cols; j++) {
+                for (int j = y; j < cols; j++) {
 
                     at(n+1, j) -= factor * at(y, j); // factor* pivot[j]
                 }
             }
         }
 
-        else {
-            ZeroUntilEps(y, y);
-        }
+        
+         ZeroUntilEps(y, y);
+        
     }
 
 };
