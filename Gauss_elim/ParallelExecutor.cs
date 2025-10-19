@@ -30,7 +30,7 @@ namespace Gauss_elim.threading
             Parallel.For(0, threadCount, i =>
             {
                 if (mode == "cpp")
-                    NativeMethods.NativeMethods.start_gauss(input, output + $"_cpp_{i}.txt");
+                    NativeMethods.GaussCpp.start_gauss(input, output + $"_cpp_{i}.txt");
                 else if (mode == "asm")
                 {
                     // przykładowe wywołanie asm
@@ -42,4 +42,12 @@ namespace Gauss_elim.threading
             Console.WriteLine($"Zakończono ({mode}) w {sw.ElapsedMilliseconds} ms na {threadCount} wątkach.");
         }
     }
+
+
+    public class matrix_cpp_warpper
+    {
+        //operje na wskazniku do macierzy w cpp
+        //wywoluje eliminacje gaussa wielowatkowo
+    }
+
 }

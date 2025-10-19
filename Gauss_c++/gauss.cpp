@@ -36,6 +36,7 @@ void MatrixHandler:: LoadMatrixFromFile(const std::string& path) {
 }
 
 //  Zapis macierzy do pliku
+
 void MatrixHandler:: SaveMatrixToFile(const std::string& path)  {
     std::ofstream file(path, std::ios::trunc);
     if (!file.is_open())
@@ -148,9 +149,5 @@ void MatrixHandler::GaussElimination_oneTask()  //=> ten kod muis byc w klasie P
     }
 }
 
-extern "C" __declspec(dllexport)
-void start_gauss(const char* input_path, const char* output_path) {
-    MatrixHandler matrix(input_path);
-    matrix.GaussElimination();
-    matrix.SaveMatrixToFile(output_path);
-}
+
+
