@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="MatrixHandler.cs" />
     <Compile Include="NativeMethods.cs" />
+    <Compile Include="ParallelExecutor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

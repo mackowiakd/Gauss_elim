@@ -65,13 +65,14 @@ void MatrixHandler:: ZeroUntilEps(int startRow, int startCol) {
     }
 }
 //  Pivotowanie (czêœciowe)
-float MatrixHandler:: ApplyPivot(int currentRow) {
+void MatrixHandler:: ApplyPivot(int currentRow) {
     int pivotRow = currentRow;
-    float maxAbs = std::fabs(data[currentRow * cols + currentRow]); //aktulany pivot
-    //data[r * cols + c];
+    float maxAbs = std::fabs(at(currentRow, currentRow)); //aktulany pivot
+    //currentRow==col
     // znajdŸ wiersz z najwiêkszym elementem w kolumnie
-    for (int i = currentRow + 1; i < rows-1; i++) {
-        float val = std::fabs(data[i * cols + i]);
+    for (int i = currentRow + 1; i < rows; i++) {
+        float val = std::fabs(at(i,currentRow));
+		
         if (val > maxAbs) {
             maxAbs = val;
             pivotRow = i;
@@ -80,25 +81,26 @@ float MatrixHandler:: ApplyPivot(int currentRow) {
 
     // jeœli trzeba, zamieñ wiersze
     if (pivotRow != currentRow) {
-        for (int j = 0; j < cols; j++) {
+        for (int j = currentRow; j < cols; j++) {
             std::swap(data[currentRow * cols + j], data[pivotRow * cols + j]);
         }
     }
-    return at(pivotRow, pivotRow);
+    return;
 }
 
 
 void MatrixHandler:: GaussElimination() {
    
     for (int y=0; y < cols - 1; y++) {
-        int n = y;
-		pivot = at(y, y);
-        //pivot = ApplyPivot(n);
-		//std::cout <<"\n" << pivot << "\n";
+        
+		
+        
+        ApplyPivot(y);
+        pivot = at(y, y);
 
-        if (pivot > EPS) {
+        if (std::fabs(pivot) > EPS) {
 
-            
+			
             for (int n = y; n < rows - 1; n++) {
                 float factor = at(n + 1, y) / pivot;
                 for (int j = y; j < cols; j++) {
@@ -108,12 +110,25 @@ void MatrixHandler:: GaussElimination() {
             }
         }
 
-        
+		 
          ZeroUntilEps(y, y);
+         print_matrix();
         
     }
 
 };
+
+void MatrixHandler::print_matrix(){
+    
+    for (int r = 0; r < rows; r++) {
+        for (int y = 0; y < cols - 1; y++) {
+            std::cout << at(r, y) << " ";
+        }
+        std::cout << "\n";
+    }
+    std::cout << "\n";
+
+}
 
 extern "C" __declspec(dllexport)
 void start_gauss(const char* input_path, const char* output_path) {

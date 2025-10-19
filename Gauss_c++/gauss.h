@@ -25,6 +25,7 @@ public:
     }
 
     void LoadMatrixFromFile(const std::string& path);
+    void print_matrix();
 
     // Dostêp do elementu (wiersz, kolumna)
     inline float& at(int r, int c) {
@@ -37,8 +38,8 @@ public:
     void ZeroUntilEps(int startRow, int startCol);
 
 
-    //  Pivotowanie (czêœciowe)
-    float ApplyPivot(int currentRow);
+	//  Pivotowanie (czêœciowe) -> nie musi nic zwracaæ tylko daje wiersz z najwiêkszym elementem w miejsce pivotu
+    void ApplyPivot(int currentRow);
 
     void GaussElimination();
 };
