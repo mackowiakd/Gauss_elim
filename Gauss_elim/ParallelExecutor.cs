@@ -44,10 +44,31 @@ namespace Gauss_elim.threading
     }
 
 
-    public class matrix_cpp_warpper
+    public class Matrix_Cpp_warpper
     {
         //operje na wskazniku do macierzy w cpp
         //wywoluje eliminacje gaussa wielowatkowo
+        public IntPtr matrixPtr;
+        public int rows;
+        public int cols;
+        public Matrix_Cpp_warpper(string input) {
+            matrixPtr = NativeMethods.GaussCpp.create_matrix(input);
+            rows = NativeMethods.GaussCpp.get_rows(matrixPtr);
+            cols = NativeMethods.GaussCpp.get_cols(matrixPtr);
+        }
+        public void Gauss_parallel(int n)
+        {
+            //for (int y = 0; y < ptr->cols - 1; y++) {
+
+            //ptr->ApplyPivot(y);
+            NativeMethods.GaussCpp.apply_pivot(matrixPtr, n);
+           
+            //PARALELL start for n= y+1 to rows- 
+            NativeMethods.GaussCpp.gauss_step(matrixPtr, n,cols); // in Loop from n= y+1 to rows-1 => in threads scheduler
+           
+            // ptr->ZeroUntilEps(y, y);
+            NativeMethods.GaussCpp.zero_until_eps(matrixPtr, n, n);
+        }
     }
 
 }

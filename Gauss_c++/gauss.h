@@ -23,7 +23,10 @@ public:
     MatrixHandler(const std::string& path) {
         LoadMatrixFromFile(path);
     }
-
+    void set_pivot(float val) {
+        pivot = val;
+	}
+   
     void LoadMatrixFromFile(const std::string& path);
     void print_matrix();
 
@@ -42,5 +45,5 @@ public:
     void ApplyPivot(int currentRow);
 
     void GaussElimination();
-    void GaussElimination_oneTask();
+    void GaussEliminationStep(int nRow, int col);
 };

@@ -132,20 +132,16 @@ void MatrixHandler::print_matrix(){
     std::cout << "\n";
 
 }
+void MatrixHandler::GaussEliminationStep(int n, int y) {
+    if (std::fabs(pivot) > EPS) {
 
-void MatrixHandler::GaussElimination_oneTask()  //=> ten kod muis byc w klasie ParallelExecution
-{
-    for (int y = 0; y < cols - 1; y++) {
+       
+		float factor = at(n + 1, y) / at(y, y); //pivot = at(y,y);
+        for (int j = y; j < cols; j++) {
 
-
-        ApplyPivot(y);
-        pivot = at(y, y);
-        //threading start for n= y+1 to rows-1
-        // gauss elimination(n)
-        //threads.join_all();
-
-        ZeroUntilEps(y, y);
-        print_matrix();
+            at(n + 1, j) -= factor * at(y, j); // factor* pivot[j]
+        }
+        
     }
 }
 

@@ -214,7 +214,7 @@ namespace Gauss_elim.MatrixHandler
                                 //if pivot ==0 => all row can be skiped
                                 if (pivot != 0)
                                 {
-                                    NativeMethods.import_functions.gauss_elimination(rowN, rowNext, value1, value2);
+                                    NativeMethods.GaussAsm.gauss_elimination(rowN, rowNext, value1, value2);
                                     ZeroUntilEps(data, (n + 1) * cols + x, EPS);
                                 }
 
