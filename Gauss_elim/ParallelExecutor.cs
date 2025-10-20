@@ -58,7 +58,7 @@ namespace Gauss_elim.threading
                 NativeMethods.GaussCpp.apply_pivot(matrixPtr, y);
 
                 //rwnoległe przetwarzanie kolejnych wierszy
-                Parallel.For(y + 1, rows - 1, new ParallelOptions { MaxDegreeOfParallelism = threadCount }, row_elim =>
+                Parallel.For(y , rows - 1, new ParallelOptions { MaxDegreeOfParallelism = threadCount }, row_elim =>
                 {
                     NativeMethods.GaussCpp.gauss_step(matrixPtr,row_elim,y);
                     Console.WriteLine($"Wątek {Task.CurrentId} przetworzył wiersz {row_elim} dla kolumny {y}");
