@@ -26,7 +26,9 @@ namespace Gauss_elim
             //matrixHandler.GaussEliminationManaged();
             //matrixHandler.SaveMatrixToFile(outputPath, matrixHandler.data, matrixHandler.rows, matrixHandler.cols);
 
-            NativeMethods.GaussAsm.start_gauss(inputPath, "result_2.txt");
+           // NativeMethods.GaussCpp.start_gauss(inputPath, "result_2.txt");
+
+            threading.ParallelExecutor.RunParallel(inputPath);
         }
     }
 }

@@ -1,5 +1,7 @@
 #include "gauss.h"
 
+
+
 extern "C" {
 
     void start_gauss(const char* input_path, const char* output_path) {
@@ -35,18 +37,10 @@ extern "C" {
     };
 
     __declspec(dllexport)
-        void gauss_step(MatrixHandler* ptr, int nRow, int nCol) {
-        //for (int y = 0; y < ptr->cols - 1; y++) {
-
-            //ptr->ApplyPivot(y);
-            //ptr->set_pivot(ptr->at(y, y));
-            //threading start for n= y+1 to rows- 
-            //for (int n = y; n < ptr->rows - 1; n++) // each row -> different thread
-        ptr->GaussEliminationStep(nRow, nCol);
-        //threads.join_all();
-
-       // ptr->ZeroUntilEps(y, y);
-
+        void gauss_step(MatrixHandler* ptr, int pivotRow, int y) {
+       
+        ptr->GaussEliminationStep(pivotRow, y);
+    
 
     }
 

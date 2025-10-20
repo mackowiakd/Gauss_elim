@@ -11,64 +11,76 @@ namespace Gauss_elim.threading
     public class ParallelExecutor
     {
         int maxThreads = Environment.ProcessorCount;
-        /* Uruchamia równoległe przetwarzanie eliminacji Gaussa -> musi isc w petli po ilsoci col => modyf funkcje (obciac petle y)
-         * + pivoting tez przed watkami
-         * input - ścieżka do pliku wejściowego
-         * output - ścieżka do pliku wyjściowego
-         * threadCount - liczba wątków do uruchomienia
-         * mode - "cpp" lub "asm" określający, której implementacji użyć
-         * 
-         * musi dostac:
-         *      rozmiar macierzy 
-         *      odpowiedn, metode do pivotingu (asm ma inna niz cpp)
-         * 
+        /* 
+         * fukcja bedzie wywolywac rownolege eliminacje gaussa dla CPP lub ASM
          */
-        public static void RunParallel(string input, string output, int threadCount, string mode)
+        public static void RunParallel(string input)
         {
             Stopwatch sw = Stopwatch.StartNew();
 
-            Parallel.For(0, threadCount, i =>
-            {
-                if (mode == "cpp")
-                    NativeMethods.GaussCpp.start_gauss(input, output + $"_cpp_{i}.txt");
-                else if (mode == "asm")
-                {
-                    // przykładowe wywołanie asm
-                    // NativeMethods.gauss_elimination(...);
-                }
-            });
+            Matrix_Cpp_Parallel matrixCpp= new Matrix_Cpp_Parallel(input);
+            matrixCpp.Gauss_parallel();
+            matrixCpp.Dispose();
 
             sw.Stop();
-            Console.WriteLine($"Zakończono ({mode}) w {sw.ElapsedMilliseconds} ms na {threadCount} wątkach.");
+           
         }
     }
 
+    public class asm_parallel
+    {
+        //do zaimplementowania
+    }
 
-    public class Matrix_Cpp_warpper
+    public class Matrix_Cpp_Parallel
     {
         //operje na wskazniku do macierzy w cpp
         //wywoluje eliminacje gaussa wielowatkowo
         public IntPtr matrixPtr;
         public int rows;
         public int cols;
-        public Matrix_Cpp_warpper(string input) {
+        int threadCount;
+        public Matrix_Cpp_Parallel(string input) {
             matrixPtr = NativeMethods.GaussCpp.create_matrix(input);
             rows = NativeMethods.GaussCpp.get_rows(matrixPtr);
             cols = NativeMethods.GaussCpp.get_cols(matrixPtr);
+            threadCount = rows-1;
         }
-        public void Gauss_parallel(int n)
+        public void Gauss_parallel()
         {
             //for (int y = 0; y < ptr->cols - 1; y++) {
 
-            //ptr->ApplyPivot(y);
-            NativeMethods.GaussCpp.apply_pivot(matrixPtr, n);
-           
-            //PARALELL start for n= y+1 to rows- 
-            NativeMethods.GaussCpp.gauss_step(matrixPtr, n,cols); // in Loop from n= y+1 to rows-1 => in threads scheduler
-           
-            // ptr->ZeroUntilEps(y, y);
-            NativeMethods.GaussCpp.zero_until_eps(matrixPtr, n, n);
+            
+
+            //PARALELL start for n= y
+            for (int y = 0; y < cols - 1; y++) {
+                // pivot dla aktualnej kolumny
+                NativeMethods.GaussCpp.apply_pivot(matrixPtr, y);
+
+                //rwnoległe przetwarzanie kolejnych wierszy
+                Parallel.For(y + 1, rows - 1, new ParallelOptions { MaxDegreeOfParallelism = threadCount }, row_elim =>
+                {
+                    NativeMethods.GaussCpp.gauss_step(matrixPtr,row_elim,y);
+                    Console.WriteLine($"Wątek {Task.CurrentId} przetworzył wiersz {row_elim} dla kolumny {y}");
+                });
+
+                // ptr->ZeroUntilEps(y, y);
+                NativeMethods.GaussCpp.zero_until_eps(matrixPtr, y, y);
+            }
+          
+        }
+
+
+        public void Dispose()
+        {
+            NativeMethods.GaussCpp.save_matrix(matrixPtr, "output_cpp_parallel.txt");
+            if (matrixPtr != IntPtr.Zero)
+            {
+                NativeMethods.GaussCpp.destroy_matrix(matrixPtr);
+                matrixPtr = IntPtr.Zero;
+            }
         }
     }
+
 
 }
