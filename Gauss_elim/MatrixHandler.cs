@@ -20,7 +20,7 @@ namespace Gauss_elim.MatrixHandler
 
         private int rowOffset = 0; // zmienna offset powinna wskazywac ile ymm mozna sie przesunac aby dostac aktulane dane (w przypadku resizingu)
         private int colOffset = 0;
-        private const float EPS = 1.0e-5f;
+        private const float eps = 1.0e-5f;
 
         public MatrixHandler(string path)
         {
@@ -51,7 +51,7 @@ namespace Gauss_elim.MatrixHandler
 
             return (values.ToArray(), rows, cols);
         }
-        public void ZeroUntilEps(float[] data, int startIndex, float eps)
+        public void ZeroUntilEps(int startIndex)
         {
             // przechodzimy po wierszu od startIndex do startIndex + rejestr YMM (8 float)
             for (int i = startIndex; i < startIndex + ymm; i++)
@@ -92,6 +92,7 @@ namespace Gauss_elim.MatrixHandler
         {
             int newCols = ymm;
             int newRows = ymm;
+            //rommiar < 8 ??
 
             if (cols != rows)
                 throw new InvalidOperationException("Macierz nie jest kwadratowa.");
@@ -132,7 +133,7 @@ namespace Gauss_elim.MatrixHandler
         }
 
 
-        public void ApplyPivot(float[] data, int rows, int cols, int currentRow)
+        public void ApplyPivot(int currentRow)
         {
             int pivotRow = currentRow;
             float maxAbs = Math.Abs(data[currentRow * cols + currentRow]);
@@ -181,7 +182,7 @@ namespace Gauss_elim.MatrixHandler
             for (int y = 0; y < cols - 1; y++)
             {
                 //zawsze pivoting
-                ApplyPivot(data, rows, cols, y);
+                ApplyPivot(y);
                 float pivot = data[y * cols + (y)];
 
                 for (int n = y; n < rows - 1; n++) // kazde n wiersz dla innega watku
@@ -215,7 +216,7 @@ namespace Gauss_elim.MatrixHandler
                                 if (pivot != 0)
                                 {
                                     NativeMethods.GaussAsm.gauss_elimination(rowN, rowNext, value1, value2);
-                                    ZeroUntilEps(data, (n + 1) * cols + x, EPS);
+                                    ZeroUntilEps((n + 1) * cols + x);
                                 }
 
                             }
@@ -226,23 +227,43 @@ namespace Gauss_elim.MatrixHandler
                 }
             }
 
-
-
-
         }
-    }
 
-
-    // Klasa pomocnicza do wczytywania/zapisywania plików z macierzami
-    public static class MatrixIO
-    {
+        public void gauss_step(int n, int y)
+        {
 
 
 
+            //dzielenie wiersza na czesci po 8 float 
+            for (int x = 0; x < cols; x += ymm)
+            {
+
+                unsafe
+                {
+                    float* value1 = stackalloc float[2];
+                    value1[0] = data[y * cols + (y)]; //pivot
+                    value1[1] = data[(y + 1) * cols + (y)];  // elim
+                    int* value2 = stackalloc int[3];
+                    value2[0] = rows / 8 - 1;
+                    value2[1] = y * rows + x;
+                    value2[2] = rows * cols;
+
+                    fixed (float* rowN = &data[y * rows + x]) // const for all col elim
+                    fixed (float* rowNext = &data[(n + 1) * cols + x])
 
 
+                    {
+                        //zamiast 3 agr int -> array size 3 (r8 w asm)
+                        //if pivot ==0 => all row can be skiped
+                        if (data[y * cols + (y)] != 0)
+                        {
+                            NativeMethods.GaussAsm.gauss_elimination(rowN, rowNext, value1, value2);
+                            ZeroUntilEps((n + 1) * cols + x);
+                        }
 
-
-
+                    }
+                }
+            }
+        }
     }
 }

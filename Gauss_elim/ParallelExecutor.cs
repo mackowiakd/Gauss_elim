@@ -29,7 +29,36 @@ namespace Gauss_elim.threading
 
     public class asm_parallel
     {
-        //do zaimplementowania
+        MatrixHandler.MatrixHandler matrix;
+        int threadCount;
+        public asm_parallel(string path, int threads)
+        {
+            threadCount = threads;
+            matrix = new MatrixHandler.MatrixHandler(path);
+        }
+        public void Gauss_parallel()
+        {
+            
+            //PARALELL start for n= y
+            for (int y = 0; y < matrix.cols - 1; y++)
+            {
+                // pivot dla aktualnej kolumny
+                matrix.ApplyPivot(y);
+
+                //rwnoległe przetwarzanie kolejnych wierszy
+                Parallel.For(y, matrix.rows - 1, new ParallelOptions { MaxDegreeOfParallelism = threadCount }, row_elim =>
+                {
+                    matrix.gauss_step(row_elim, y);
+                    Console.WriteLine($"Wątek {Task.CurrentId} przetworzył wiersz {row_elim} dla kolumny {y}");
+                    // ptr->ZeroUntilEps(y, y);
+                });
+
+
+            }
+
+        }
+
+        
     }
 
     public class Matrix_Cpp_Parallel

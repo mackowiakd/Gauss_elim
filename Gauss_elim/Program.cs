@@ -28,7 +28,8 @@ namespace Gauss_elim
 
            // NativeMethods.GaussCpp.start_gauss(inputPath, "result_2.txt");
 
-            threading.ParallelExecutor.RunParallel(inputPath);
+            //threading.ParallelExecutor.RunParallel(inputPath);
+            threading.asm_parallel asm_Parallel = new threading.asm_parallel(inputPath, Environment.ProcessorCount);
         }
     }
 }
