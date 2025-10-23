@@ -64,8 +64,21 @@ namespace Gauss_elim.MatrixHandler
             }
         }
 
+        public void ZeroUntilEps_parallel(int elim_row)
+        {
+           int i = elim_row * cols + elim_row;
+            // przechodzimy po wierszu od pivota do konca -> ewentualnie zerowanie tylko 1 wiersza przez watek ktory byl za nieg odpowiedzialny
+            for ( ; i < cols; i++)
+            {
+                // jeśli wartość bezwzględna < eps → zerujemy
+                if (Math.Abs(data[i]) < eps)
+                    data[i] = 0f;
+                
+            }
+        }
 
-        public void SaveMatrixToFile(string path, float[] data, int rows, int cols)
+
+        public void SaveMatrixToFile(string path)
         {
             using (StreamWriter writer = new StreamWriter(path, false, Encoding.UTF8))
             {
@@ -161,19 +174,40 @@ namespace Gauss_elim.MatrixHandler
             }
         }
 
-        public void PrintMatrix(float[] data, int rows, int cols)
-        {
-            for (int r = 0; r < rows; r++)
-            {
-                for (int c = 0; c < cols; c++)
-                {
-                    Console.Write(data[r * cols + c].ToString("F2") + " ");
-                }
-                Console.WriteLine();
-            }
-            Console.WriteLine();
-        }
+     
 
+
+        public void gauss_step(int n, int y)
+        {
+
+            //dzielenie wiersza na czesci po 8 float 
+            for (int x = 0; x < cols; x += ymm)
+            {
+
+                unsafe
+                {
+                    float* value1 = stackalloc float[2];
+                    value1[0] = data[y * cols + (y)]; //pivot
+                    value1[1] = data[(n + 1) * cols + (n)];  // elim
+                    
+
+                    fixed (float* rowN = &data[y * rows + x]) // const for all col elim
+                    fixed (float* rowNext = &data[(n + 1) * cols + x])
+
+
+                    {
+                        //zamiast 3 agr int -> array size 3 (r8 w asm)
+                        //if pivot ==0 => all row can be skiped
+                        if (data[y * cols + (y)] != 0)
+                        {
+                            NativeMethods.GaussAsm.gauss_elimination(rowN, rowNext, value1);
+
+                        }
+
+                    }
+                }
+            }
+        }
         /*zmienne offset do przemyslenia bo zawsze dokladamy > niz 8 wierzy i kolumn 0
          * wtedy trzeba zaczac od rowOffset ale col =0 i zmienia sie caly algorytm...
          */
@@ -201,10 +235,7 @@ namespace Gauss_elim.MatrixHandler
                             float* value1 = stackalloc float[2];
                             value1[0] = pivot;
                             value1[1] = elim;  // to jest const dla danego n ALE moze ulec zmianie przy x=0
-                            int* value2 = stackalloc int[3];
-                            value2[0] = rows / 8 - 1;
-                            value2[1] = y * rows + x;
-                            value2[2] = rows * cols;
+                           
 
                             fixed (float* rowN = &data[y * rows + x]) // const for all col elim
                             fixed (float* rowNext = &data[(n + 1) * cols + x])
@@ -215,7 +246,7 @@ namespace Gauss_elim.MatrixHandler
                                 //if pivot ==0 => all row can be skiped
                                 if (pivot != 0)
                                 {
-                                    NativeMethods.GaussAsm.gauss_elimination(rowN, rowNext, value1, value2);
+                                    NativeMethods.GaussAsm.gauss_elimination(rowN, rowNext, value1);
                                     ZeroUntilEps((n + 1) * cols + x);
                                 }
 
@@ -229,41 +260,17 @@ namespace Gauss_elim.MatrixHandler
 
         }
 
-        public void gauss_step(int n, int y)
+        public void PrintMatrix()
         {
-
-
-
-            //dzielenie wiersza na czesci po 8 float 
-            for (int x = 0; x < cols; x += ymm)
+            for (int r = 0; r < rows; r++)
             {
-
-                unsafe
+                for (int c = 0; c < cols; c++)
                 {
-                    float* value1 = stackalloc float[2];
-                    value1[0] = data[y * cols + (y)]; //pivot
-                    value1[1] = data[(y + 1) * cols + (y)];  // elim
-                    int* value2 = stackalloc int[3];
-                    value2[0] = rows / 8 - 1;
-                    value2[1] = y * rows + x;
-                    value2[2] = rows * cols;
-
-                    fixed (float* rowN = &data[y * rows + x]) // const for all col elim
-                    fixed (float* rowNext = &data[(n + 1) * cols + x])
-
-
-                    {
-                        //zamiast 3 agr int -> array size 3 (r8 w asm)
-                        //if pivot ==0 => all row can be skiped
-                        if (data[y * cols + (y)] != 0)
-                        {
-                            NativeMethods.GaussAsm.gauss_elimination(rowN, rowNext, value1, value2);
-                            ZeroUntilEps((n + 1) * cols + x);
-                        }
-
-                    }
+                    Console.Write(data[r * cols + c].ToString("F2") + " ");
                 }
+                Console.WriteLine();
             }
+            Console.WriteLine();
         }
     }
 }

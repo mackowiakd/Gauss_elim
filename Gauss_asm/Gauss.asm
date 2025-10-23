@@ -1,8 +1,7 @@
 
 .data
    
-    piv REAL4 ?                        ;
-    rowOffset DWORD ?                   ; offset do wiersza
+  
    
     eps REAL4 1.0e-5                    ; tolerancja (dla float)
 
@@ -21,16 +20,15 @@ gauss_elimination proc
    
     ; RCX = ptr rowN 256 bit
     ; RDX = ptr rowNext 256 bit
-    ; R8 = pivot /elim  (float)
-    ; R9 = rowOffset/ elim_index/ sizeMatrix INT (DWORD) -> dla fukcji pivot
+    ; R8 = elim/pivot  (float)
+    ; R9 = rowOffset/ elim_index/ sizeMatrix INT (DWORD) -> dla fukcji pivot    WYWALONE Z PG GLOWNEGO
     
    
 
-    movss xmm2, dword ptr [r8]              ; piovt
-    movss piv, xmm2                         ; zapisz piv do zmiennej globalnej       
-
+    movss xmm2, dword ptr [r8]           ; piovt
    
-    movss xmm3, dword ptr [r8+4]         ; elim
+   
+    movss xmm3, dword ptr [r8+4]         ; elim (wiersz N+1, kolumna pivota))
     divss xmm3, xmm2                     ; elim/pivot -> co z zaokragleniem
 
    
@@ -47,8 +45,7 @@ gauss_elimination proc
 
     vmovups [rdx], ymm1                  ; nadpisz ca³y wiersz Next
     vzeroupper                           ;
-    ;do_pivot: call pivot                ; jeœli jest NaN to pivotowanie
-    ;movss xmm0, piv 					 ; wartosc zwracana
+  
     ret  
     
 gauss_elimination endp;

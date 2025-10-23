@@ -17,13 +17,16 @@ namespace Gauss_elim.threading
         public static void RunParallel(string input)
         {
             Stopwatch sw = Stopwatch.StartNew();
+            asm_parallel matrixAsm = new asm_parallel(input, Environment.ProcessorCount);
+            matrixAsm.Gauss_parallel();
 
-            Matrix_Cpp_Parallel matrixCpp= new Matrix_Cpp_Parallel(input);
-            matrixCpp.Gauss_parallel();
-            matrixCpp.Dispose();
-
+            // Matrix_Cpp_Parallel matrixCpp= new Matrix_Cpp_Parallel(input);
+            // matrixCpp.Gauss_parallel();
+            // matrixCpp.Dispose();
             sw.Stop();
-           
+
+            Console.WriteLine($"Czas wykonania równoległej eliminacji Gaussa (ASM): {sw.ElapsedMilliseconds} ms");
+
         }
     }
 
@@ -38,7 +41,8 @@ namespace Gauss_elim.threading
         }
         public void Gauss_parallel()
         {
-            
+            matrix.checkSize();
+
             //PARALELL start for n= y
             for (int y = 0; y < matrix.cols - 1; y++)
             {
@@ -49,16 +53,24 @@ namespace Gauss_elim.threading
                 Parallel.For(y, matrix.rows - 1, new ParallelOptions { MaxDegreeOfParallelism = threadCount }, row_elim =>
                 {
                     matrix.gauss_step(row_elim, y);
-                    Console.WriteLine($"Wątek {Task.CurrentId} przetworzył wiersz {row_elim} dla kolumny {y}");
-                    // ptr->ZeroUntilEps(y, y);
-                });
 
+                    if (matrix.data[y * matrix.cols + (y)] != 0) //pivot
+                        matrix.ZeroUntilEps_parallel(row_elim); // zerujemy tylko ten wiersz kotry byl eliminowany (jesli sa wartosc NaN itd)
+
+
+                    Console.WriteLine($"Wątek {Task.CurrentId} przetworzył wiersz {row_elim} dla kolumny {y}");
+                   
+                });
+             
+                matrix.PrintMatrix();
 
             }
 
+            matrix.SaveMatrixToFile("output_asm_parallel.txt");
+
         }
 
-        
+
     }
 
     public class Matrix_Cpp_Parallel
@@ -97,6 +109,7 @@ namespace Gauss_elim.threading
                 NativeMethods.GaussCpp.zero_until_eps(matrixPtr, y, y);
             }
           
+
         }
 
 
