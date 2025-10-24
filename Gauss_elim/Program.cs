@@ -22,11 +22,11 @@ namespace Gauss_elim
             //string outputPath = "result_1.txt";
             //MatrixHandler.MatrixHandler matrixHandler = new MatrixHandler.MatrixHandler(inputPath);
             //matrixHandler.checkSize();
-            //matrixHandler.PrintMatrix(matrixHandler.data, matrixHandler.rows, matrixHandler.cols);
+            //matrixHandler.PrintMatrix();
             //matrixHandler.GaussEliminationManaged();
-            //matrixHandler.SaveMatrixToFile(outputPath, matrixHandler.data, matrixHandler.rows, matrixHandler.cols);
+            //matrixHandler.SaveMatrixToFile(outputPath);
 
-           // NativeMethods.GaussCpp.start_gauss(inputPath, "result_2.txt");
+            //NativeMethods.GaussCpp.start_gauss(inputPath, "result_2.txt"); //-> metoda z dll cpp 1 watek
 
             threading.ParallelExecutor.RunParallel(inputPath);
             

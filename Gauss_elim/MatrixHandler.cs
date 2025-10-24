@@ -188,7 +188,7 @@ namespace Gauss_elim.MatrixHandler
                 {
                     float* value1 = stackalloc float[2];
                     value1[0] = data[y * cols + (y)]; //pivot
-                    value1[1] = data[(n + 1) * cols + (n)];  // elim
+                    value1[1] = data[(n + 1) * cols + (y)];  // elim
                     
 
                     fixed (float* rowN = &data[y * rows + x]) // const for all col elim
