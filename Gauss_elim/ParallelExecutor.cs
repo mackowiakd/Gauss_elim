@@ -18,6 +18,7 @@ namespace Gauss_elim.threading
         {
             Stopwatch sw = Stopwatch.StartNew();
             asm_parallel matrixAsm = new asm_parallel(input, Environment.ProcessorCount);
+            Console.WriteLine($"Liczba wątków: {Environment.ProcessorCount}");
             matrixAsm.Gauss_parallel();
 
             // Matrix_Cpp_Parallel matrixCpp= new Matrix_Cpp_Parallel(input);

@@ -51,7 +51,7 @@ namespace Gauss_elim.MatrixHandler
 
             return (values.ToArray(), rows, cols);
         }
-        public void ZeroUntilEps(int startIndex)
+        public void ZeroUntilEps(int startIndex) //zerowanie wiersza po kazdej eliminacji i to w czesciach (wdg petli x)
         {
             // przechodzimy po wierszu od startIndex do startIndex + rejestr YMM (8 float)
             for (int i = startIndex; i < startIndex + ymm; i++)
@@ -59,17 +59,17 @@ namespace Gauss_elim.MatrixHandler
                 // jeśli wartość bezwzględna < eps → zerujemy
                 if (Math.Abs(data[i]) < eps)
                     data[i] = 0f;
-                else
-                    break; // po pierwszej wartości > eps kończymy
+                
             }
         }
 
+       
+        //zerowanie tylko 1 wiersza przez watek ktory byl za nieg odpowiedzialny
         public void ZeroUntilEps_parallel(int elim_row)
         {
            int i = elim_row * cols + elim_row;
-            // przechodzimy po wierszu od pivota do konca -> ewentualnie zerowanie tylko 1 wiersza przez watek ktory byl za nieg odpowiedzialny
-            for ( ; i < cols; i++)
-            {
+            // przechodzimy po wierszu od pivota do konca tego wiersza
+            for ( ; i < cols; i++){
                 // jeśli wartość bezwzględna < eps → zerujemy
                 if (Math.Abs(data[i]) < eps)
                     data[i] = 0f;
@@ -176,7 +176,7 @@ namespace Gauss_elim.MatrixHandler
 
      
 
-
+        /* do wykonania rownloeglego*/
         public void gauss_step(int n, int y)
         {
 
@@ -254,7 +254,7 @@ namespace Gauss_elim.MatrixHandler
                         }
                     }
 
-
+                    //czy lepiej ty raz zrobic zero eps dla mtrx  wiersza po zakonczeniu eliminacji
                 }
             }
 
