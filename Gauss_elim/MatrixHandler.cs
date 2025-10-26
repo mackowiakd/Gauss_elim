@@ -21,6 +21,10 @@ namespace Gauss_elim.MatrixHandler
         private int rowOffset = 0; // zmienna offset powinna wskazywac ile ymm mozna sie przesunac aby dostac aktulane dane (w przypadku resizingu)
         private int colOffset = 0;
         private const float eps = 1.0e-5f;
+        const float EPS_ABS = 1e-6f;
+        const float EPS_REL = 1e-4f;
+
+
 
         public MatrixHandler(string path)
         {
@@ -51,13 +55,12 @@ namespace Gauss_elim.MatrixHandler
 
             return (values.ToArray(), rows, cols);
         }
-        public void ZeroUntilEps(int startIndex) //zerowanie wiersza po kazdej eliminacji i to w czesciach (wdg petli x)
+        public void ZeroUntilEps(int startIndex, float pivot) //zerowanie wiersza po kazdej eliminacji i to w czesciach (wdg petli x)
         {
             // przechodzimy po wierszu od startIndex do startIndex + rejestr YMM (8 float)
             for (int i = startIndex; i < startIndex + ymm; i++)
             {
-                // jeśli wartość bezwzględna < eps → zerujemy
-                if (Math.Abs(data[i]) < eps)
+                if (Math.Abs(data[i]) < EPS_ABS + EPS_REL * Math.Abs(pivot))
                     data[i] = 0f;
                 
             }
@@ -65,15 +68,15 @@ namespace Gauss_elim.MatrixHandler
 
        
         //zerowanie tylko 1 wiersza przez watek ktory byl za nieg odpowiedzialny
-        public void ZeroUntilEps_parallel(int elim_row)
+        public void ZeroUntilEps_parallel(int elim_row, float pivot)
         {
            int i = elim_row * cols + elim_row;
             // przechodzimy po wierszu od pivota do konca tego wiersza
             for ( ; i < cols; i++){
-                // jeśli wartość bezwzględna < eps → zerujemy
-                if (Math.Abs(data[i]) < eps)
+       
+                if (Math.Abs(data[i]) < EPS_ABS + EPS_REL * Math.Abs(pivot))
                     data[i] = 0f;
-                
+
             }
         }
 
@@ -247,7 +250,7 @@ namespace Gauss_elim.MatrixHandler
                                 if (pivot != 0)
                                 {
                                     NativeMethods.GaussAsm.gauss_elimination(rowN, rowNext, value1);
-                                    ZeroUntilEps((n + 1) * cols + x);
+                                    ZeroUntilEps((n + 1) * cols + x, pivot);
                                 }
 
                             }

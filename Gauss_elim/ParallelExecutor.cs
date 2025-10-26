@@ -14,19 +14,21 @@ namespace Gauss_elim.threading
         /* 
          * fukcja bedzie wywolywac rownolege eliminacje gaussa dla CPP lub ASM
          */
-        public static void RunParallel(string input)
+        public static void RunParallel(string input1, string input2)
         {
             Stopwatch sw = Stopwatch.StartNew();
-            asm_parallel matrixAsm = new asm_parallel(input, Environment.ProcessorCount);
+            asm_parallel matrixAsm = new asm_parallel(input1);
             Console.WriteLine($"Liczba wątków: {Environment.ProcessorCount}");
             matrixAsm.Gauss_parallel();
-
-            // Matrix_Cpp_Parallel matrixCpp= new Matrix_Cpp_Parallel(input);
-            // matrixCpp.Gauss_parallel();
-            // matrixCpp.Dispose();
             sw.Stop();
-
             Console.WriteLine($"Czas wykonania równoległej eliminacji Gaussa (ASM): {sw.ElapsedMilliseconds} ms");
+
+            sw.Restart();
+            Matrix_Cpp_Parallel matrixCpp = new Matrix_Cpp_Parallel(input2);
+            matrixCpp.Gauss_parallel();
+            matrixCpp.Dispose();
+            sw.Stop();
+            Console.WriteLine($"Czas wykonania równoległej eliminacji Gaussa (CPP): {sw.ElapsedMilliseconds} ms");
 
         }
     }
@@ -35,10 +37,11 @@ namespace Gauss_elim.threading
     {
         MatrixHandler.MatrixHandler matrix;
         int threadCount;
-        public asm_parallel(string path, int threads)
+        public asm_parallel(string path)
         {
-            threadCount = threads;
+          
             matrix = new MatrixHandler.MatrixHandler(path);
+            threadCount = matrix.rows-1;
         }
         public void Gauss_parallel()
         {
@@ -53,17 +56,20 @@ namespace Gauss_elim.threading
                 //rwnoległe przetwarzanie kolejnych wierszy
                 Parallel.For(y, matrix.rows - 1, new ParallelOptions { MaxDegreeOfParallelism = threadCount }, row_elim =>
                 {
-                    matrix.gauss_step(row_elim, y);
-
-                    if (matrix.data[y * matrix.cols + (y)] != 0) //pivot
-                        matrix.ZeroUntilEps_parallel(row_elim); // zerujemy tylko ten wiersz kotry byl eliminowany (jesli sa wartosc NaN itd)
 
 
-                    Console.WriteLine($"Wątek {Task.CurrentId} przetworzył wiersz {row_elim} dla kolumny {y}");
+                    if (matrix.data[y * matrix.cols + (y)] != 0)
+                    { //pivot
+                        matrix.gauss_step(row_elim, y);
+                        matrix.ZeroUntilEps_parallel(row_elim, matrix.data[y * matrix.cols + (y)]);
+                    } // zerujemy tylko ten wiersz kotry byl eliminowany (jesli sa wartosc NaN itd)
+
+
+                    //Console.WriteLine($"Wątek {Task.CurrentId} przetworzył wiersz {row_elim} dla kolumny {y}");
                    
                 });
              
-                matrix.PrintMatrix();
+                //matrix.PrintMatrix();
 
             }
 
@@ -103,7 +109,7 @@ namespace Gauss_elim.threading
                 Parallel.For(y , rows - 1, new ParallelOptions { MaxDegreeOfParallelism = threadCount }, row_elim =>
                 {
                     NativeMethods.GaussCpp.gauss_step(matrixPtr,row_elim,y);
-                    Console.WriteLine($"Wątek {Task.CurrentId} przetworzył wiersz {row_elim} dla kolumny {y}");
+                    //Console.WriteLine($"Wątek {Task.CurrentId} przetworzył wiersz {row_elim} dla kolumny {y}");
                 });
 
                 // ptr->ZeroUntilEps(y, y);
