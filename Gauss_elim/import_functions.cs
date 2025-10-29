@@ -46,6 +46,12 @@ namespace Gauss_elim.NativeMethods{
 
         [DllImport(@"C:\Users\Dominika\source\repos\Gauss_elim\x64\Debug\Gauss_c++.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void zero_until_eps(IntPtr matrixPtr, int startRow, int startCol);
+
+        [DllImport(@"C:\Users\Dominika\source\repos\Gauss_elim\x64\Debug\Gauss_c++.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern float get_eps_abs(IntPtr matrixPtr);
+
+        [DllImport(@"C:\Users\Dominika\source\repos\Gauss_elim\x64\Debug\Gauss_c++.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern float get_eps_rel(IntPtr matrixPtr);
     }
 }
 

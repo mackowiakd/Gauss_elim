@@ -67,19 +67,7 @@ namespace Gauss_elim.MatrixHandler
         }
 
        
-        //zerowanie tylko 1 wiersza przez watek ktory byl za nieg odpowiedzialny
-        public void ZeroUntilEps_parallel(int elim_row, float pivot)
-        {
-           int i = elim_row * cols + elim_row;
-            // przechodzimy po wierszu od pivota do konca tego wiersza
-            for ( ; i < cols; i++){
-       
-                if (Math.Abs(data[i]) < EPS_ABS + EPS_REL * Math.Abs(pivot))
-                    data[i] = 0f;
-
-            }
-        }
-
+        
 
         public void SaveMatrixToFile(string path)
         {
@@ -177,9 +165,23 @@ namespace Gauss_elim.MatrixHandler
             }
         }
 
-     
+
 
         /* do wykonania rownloeglego*/
+
+        //zerowanie tylko 1 wiersza przez watek ktory byl za nieg odpowiedzialny
+        public void ZeroUntilEps_parallel(int elim_startIdx, float pivot)
+        {
+            int i = elim_startIdx;
+            // przechodzimy po wierszu od pivota do konca tego wiersza
+            for (int j = 0; j < ymm; j++, i++)
+            {
+                if (Math.Abs(data[i]) < EPS_ABS + EPS_REL * Math.Abs(pivot))
+                    data[i] = 0f;
+
+            }
+        }
+
         public void gauss_step(int n, int y)
         {
 
@@ -204,11 +206,15 @@ namespace Gauss_elim.MatrixHandler
                         if (data[y * cols + (y)] != 0)
                         {
                             NativeMethods.GaussAsm.gauss_elimination(rowN, rowNext, value1);
+                            ZeroUntilEps((n + 1) * cols + x, data[y * cols + (y)]);
+
+
 
                         }
 
                     }
                 }
+                
             }
         }
         /*zmienne offset do przemyslenia bo zawsze dokladamy > niz 8 wierzy i kolumn 0

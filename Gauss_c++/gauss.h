@@ -9,18 +9,20 @@
 
 //napisac funkcje ktora wczyta macierz z pliku (utowrzy obiekt klasy MatrixHandler)
 
-class MatrixHandler {
+class MatrixHandler_cpp {
     static constexpr float EPS = 1.0e-5f;
     
 public:
     int rows = 0;
     int cols = 0;
     float pivot = 10.0f;
+    const float EPS_ABS = 1e-6f;
+    const float EPS_REL = 1e-4f;
     std::vector<float> data;        // macierz w postaci 1D (row-major)
 
 
     // Konstruktor wczytuj¹cy macierz z pliku
-    MatrixHandler(const std::string& path) {
+    MatrixHandler_cpp(const std::string& path) {
         LoadMatrixFromFile(path);
     }
     void set_pivot(float val) {

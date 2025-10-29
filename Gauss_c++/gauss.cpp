@@ -1,6 +1,6 @@
 #include "gauss.h"
 
-void MatrixHandler:: LoadMatrixFromFile(const std::string& path) {
+void MatrixHandler_cpp:: LoadMatrixFromFile(const std::string& path) {
     std::ifstream file(path);
     if (!file.is_open())
         throw std::runtime_error("Nie mozna otworzyc pliku: " + path);
@@ -37,7 +37,7 @@ void MatrixHandler:: LoadMatrixFromFile(const std::string& path) {
 
 //  Zapis macierzy do pliku
 
-void MatrixHandler:: SaveMatrixToFile(const std::string& path)  {
+void MatrixHandler_cpp:: SaveMatrixToFile(const std::string& path)  {
     std::ofstream file(path, std::ios::trunc);
     if (!file.is_open())
         throw std::runtime_error("Nie mozna zapisac pliku: " + path);
@@ -57,16 +57,17 @@ void MatrixHandler:: SaveMatrixToFile(const std::string& path)  {
     // std::cout << "Plik zapisano w: " << path << std::endl;
 }
 
-void MatrixHandler:: ZeroUntilEps(int startRow, int startCol) {
+void MatrixHandler_cpp:: ZeroUntilEps(int startRow, int startCol) {
+    float pivot = std::fabs(at(startRow, startCol));
     for (int r = startRow+1; r < rows; r++) {
         for (int c = startCol; c < cols; c++) {
-            if (std::fabs(at(r, c)) <= EPS)
+            if (std::fabs(at(r, c)) < EPS_ABS + EPS_REL *pivot)
                 at(r, c) = 0.0f;
         }
     }
 }
 //  Pivotowanie (czêœciowe)
-void MatrixHandler:: ApplyPivot(int currentRow) {
+void MatrixHandler_cpp:: ApplyPivot(int currentRow) {
     int pivotRow = currentRow;
     float maxAbs = std::fabs(at(currentRow, currentRow)); //aktulany pivot
     //currentRow==col
@@ -90,7 +91,7 @@ void MatrixHandler:: ApplyPivot(int currentRow) {
 }
 
 
-void MatrixHandler:: GaussElimination() {
+void MatrixHandler_cpp:: GaussElimination() {
    
     for (int y=0; y < cols - 1; y++) {
         
@@ -121,7 +122,7 @@ void MatrixHandler:: GaussElimination() {
 
 
 
-void MatrixHandler::print_matrix(){
+void MatrixHandler_cpp::print_matrix(){
     
     for (int r = 0; r < rows; r++) {
         for (int y = 0; y < cols - 1; y++) {
@@ -132,7 +133,7 @@ void MatrixHandler::print_matrix(){
     std::cout << "\n";
 
 }
-void MatrixHandler::GaussEliminationStep(int pivotRow, int y) {
+void MatrixHandler_cpp::GaussEliminationStep(int pivotRow, int y) {
     if (std::fabs(pivot) > EPS) {
 
        

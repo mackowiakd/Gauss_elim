@@ -61,7 +61,7 @@ namespace Gauss_elim.threading
                     if (matrix.data[y * matrix.cols + (y)] != 0)
                     { //pivot
                         matrix.gauss_step(row_elim, y);
-                        matrix.ZeroUntilEps_parallel(row_elim, matrix.data[y * matrix.cols + (y)]);
+                      
                     } // zerujemy tylko ten wiersz kotry byl eliminowany (jesli sa wartosc NaN itd)
 
 
@@ -88,10 +88,15 @@ namespace Gauss_elim.threading
         public int rows;
         public int cols;
         int threadCount;
+        float eps_abs;
+        float eps_rel;
         public Matrix_Cpp_Parallel(string input) {
             matrixPtr = NativeMethods.GaussCpp.create_matrix(input);
             rows = NativeMethods.GaussCpp.get_rows(matrixPtr);
             cols = NativeMethods.GaussCpp.get_cols(matrixPtr);
+            eps_abs = NativeMethods.GaussCpp.get_eps_abs(matrixPtr);
+            eps_rel = NativeMethods.GaussCpp.get_eps_rel(matrixPtr);
+
             threadCount = rows-1;
         }
         public void Gauss_parallel()
