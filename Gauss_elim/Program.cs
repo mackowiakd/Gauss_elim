@@ -22,18 +22,7 @@ namespace Gauss_elim
             //string inputPath2 = "matrix2.txt";
             MatrixGenerator gen1 = new MatrixGenerator();
 
-            //string outputPath = "result_1.txt";
-            //MatrixHandler.MatrixHandler matrixHandler = new MatrixHandler.MatrixHandler(inputPath1);
-            //matrixHandler.checkSize();
-            //matrixHandler.PrintMatrix();
-            //matrixHandler.GaussEliminationManaged();
-            //matrixHandler.SaveMatrixToFile("res_asm_oneT.txt");
-            //NativeMethods.GaussCpp.start_gauss(inputPath, "result_2.txt"); //-> metoda z dll cpp 1 watek
-
-            //inputPath1 =gen1.filePath;
               gen1.fileName =inputPath1;
-
-       
           
 
             threading.ParallelExecutor.RunParallel(inputPath1, inputPath1);
@@ -43,3 +32,13 @@ namespace Gauss_elim
 }
 
 
+
+//string outputPath = "result_1.txt";
+//MatrixHandler.MatrixHandler matrixHandler = new MatrixHandler.MatrixHandler(inputPath1);
+//matrixHandler.checkSize();
+//matrixHandler.PrintMatrix();
+//matrixHandler.GaussEliminationManaged();
+//matrixHandler.SaveMatrixToFile("res_asm_oneT.txt");
+//NativeMethods.GaussCpp.start_gauss(inputPath, "result_2.txt"); //-> metoda z dll cpp 1 watek
+
+//inputPath1 =gen1.filePath;
