@@ -25,7 +25,7 @@ namespace Gauss_elim
               gen1.fileName =inputPath1;
           
 
-            threading.ParallelExecutor.RunParallel(inputPath1, inputPath1);
+           // threading.ParallelExecutor.RunParallel(inputPath1, inputPath1);
             
         }
     }

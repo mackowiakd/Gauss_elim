@@ -8,6 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using Gauss_elim.threading;
+
+
 
 namespace GUI
 {
@@ -71,13 +74,17 @@ namespace GUI
                 if (useAsm)
                 {
                     // wywołanie Twojej klasy ASM
-                    //var asmExec = new asm_parallel(inputPath, Environment.ProcessorCount);
-                    //asmExec.Gauss_parallel();
+                  
+                    ParallelExecutor P_exe = new ParallelExecutor();
+                    P_exe.run_asm(inputPath);
+                 
                 }
                 else if (useCpp)
                 {
                     // wywołanie Twojej klasy C++
-                    //threading.ParallelExecutor.RunParallel(inputPath);
+                  
+                    ParallelExecutor P_exe = new ParallelExecutor();
+                    P_exe.run_cpp(inputPath);
                 }
 
                 sw.Stop();
