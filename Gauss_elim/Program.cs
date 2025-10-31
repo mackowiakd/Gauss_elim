@@ -1,13 +1,16 @@
-﻿using System;
+﻿using Gauss_elim;
+using Gauss_elim.MatrixHandler;
+using Gauss_elim.threading;
+using GUI;
+using Microsoft.SqlServer.Server;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.IO;
-using Gauss_elim;
-using System.Net;
-using Gauss_elim.MatrixHandler;
+using System.Windows.Forms; // ← To jest ważne!
 
 namespace Gauss_elim
 {
@@ -15,23 +18,44 @@ namespace Gauss_elim
 
     internal class Program
     {
-
-        static void Main(string[] args)
+        [STAThread]
+        static void Main()
         {
-            string inputPath1 = "mmm.txt";
-            //string inputPath2 = "matrix2.txt";
-            MatrixGenerator gen1 = new MatrixGenerator();
+           Form1 form = new Form1();
+            Application.Run(form); // ← WinForms GUI
 
-              gen1.fileName =inputPath1;
-          
+            if(form.IsUsingAsm())
+            {
+                string inputPath = form.GetInputFilePath();
+               
+                ParallelExecutor P_exe = new ParallelExecutor();
+                P_exe.run_asm(inputPath);
+            }
 
-           // threading.ParallelExecutor.RunParallel(inputPath1, inputPath1);
-            
+            if (form.IsUsingCpp())
+            {
+                string inputPath = form.GetInputFilePath();
+                
+                ParallelExecutor P_exe = new ParallelExecutor();
+                P_exe.run_cpp(inputPath);
+            }
         }
+
     }
 }
 
+//static void Main(string[] args)
+//{
+//    string inputPath1 = "mmm.txt";
+//    //string inputPath2 = "matrix2.txt";
+//    MatrixGenerator gen1 = new MatrixGenerator();
 
+//    gen1.fileName = inputPath1;
+
+
+//    // threading.ParallelExecutor.RunParallel(inputPath1, inputPath1);
+
+//}
 
 //string outputPath = "result_1.txt";
 //MatrixHandler.MatrixHandler matrixHandler = new MatrixHandler.MatrixHandler(inputPath1);

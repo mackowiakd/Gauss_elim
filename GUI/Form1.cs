@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
-using Gauss_elim.threading;
+
 
 
 
@@ -24,6 +24,18 @@ namespace GUI
             InitializeComponent();
         }
 
+        public string GetInputFilePath()
+        {
+            return inputPath;
+        }
+        public bool IsUsingAsm()
+        {
+            return useAsm;
+        }
+        public bool IsUsingCpp()
+        {
+            return useCpp;
+        }
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             //bierze sciezke do pliku dla progrmu glownego main w cs
@@ -67,34 +79,39 @@ namespace GUI
                 return;
             }
 
-            try
-            {
-                var sw = System.Diagnostics.Stopwatch.StartNew();
+            //try
+            //{
+            //    var sw = System.Diagnostics.Stopwatch.StartNew();
 
-                if (useAsm)
-                {
-                    // wywołanie Twojej klasy ASM
+            //    if (useAsm)
+            //    {
+            //        // wywołanie Twojej klasy ASM
                   
-                    ParallelExecutor P_exe = new ParallelExecutor();
-                    P_exe.run_asm(inputPath);
+            //        ParallelExecutor P_exe = new ParallelExecutor();
+            //        P_exe.run_asm(inputPath);
                  
-                }
-                else if (useCpp)
-                {
-                    // wywołanie Twojej klasy C++
+            //    }
+            //    else if (useCpp)
+            //    {
+            //        // wywołanie Twojej klasy C++
                   
-                    ParallelExecutor P_exe = new ParallelExecutor();
-                    P_exe.run_cpp(inputPath);
-                }
+            //        ParallelExecutor P_exe = new ParallelExecutor();
+            //        P_exe.run_cpp(inputPath);
+            //    }
 
-                sw.Stop();
+            //    sw.Stop();
 
-                MessageBox.Show($"Zakończono.\nCzas wykonania: {sw.ElapsedMilliseconds} ms", "Wynik", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Błąd wykonania: {ex.Message}", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            //    MessageBox.Show($"Zakończono.\nCzas wykonania: {sw.ElapsedMilliseconds} ms", "Wynik", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show($"Błąd wykonania: {ex.Message}", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            //if > 64 while loop with message?
         }
     }
 }
