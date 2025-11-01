@@ -11,32 +11,35 @@ namespace Gauss_elim.threading
     public class ParallelExecutor
     {
         int maxThreads = Environment.ProcessorCount;
-        
+        public long elapsedTime { get; set; }
+
         /* 
          * fukcja bedzie wywolywac rownolege eliminacje gaussa dla CPP lub ASM
          */
-        public void RunParallel()
+        public void RunParallel(int threads)
         {
+           maxThreads = threads;
 
-            
 
         }
-        public void run_asm(string input1)
+        public void run_asm(string input1, int thread_count)
         {
             Stopwatch sw = Stopwatch.StartNew();
-            asm_parallel matrixAsm = new asm_parallel(input1);
+            asm_parallel matrixAsm = new asm_parallel(input1, thread_count);
             Console.WriteLine($"Liczba wątków: {Environment.ProcessorCount}");
             matrixAsm.Gauss_parallel();
             sw.Stop();
+            elapsedTime = sw.ElapsedMilliseconds;
             Console.WriteLine($"Czas wykonania równoległej eliminacji Gaussa (ASM): {sw.ElapsedMilliseconds} ms");
 
         }
-        public void run_cpp(string input1) {
+        public void run_cpp(string input1, int thread_count) {
             Stopwatch sw = Stopwatch.StartNew();
-            Matrix_Cpp_Parallel matrixCpp = new Matrix_Cpp_Parallel(input1);
+            Matrix_Cpp_Parallel matrixCpp = new Matrix_Cpp_Parallel(input1, thread_count);
             matrixCpp.Gauss_parallel();
             matrixCpp.Dispose();
             sw.Stop();
+            elapsedTime = sw.ElapsedMilliseconds;
             Console.WriteLine($"Czas wykonania równoległej eliminacji Gaussa (CPP): {sw.ElapsedMilliseconds} ms");
         }
     }
@@ -45,11 +48,11 @@ namespace Gauss_elim.threading
     {
         MatrixHandler.MatrixHandler matrix;
         int threadCount;
-        public asm_parallel(string path)
+        public asm_parallel(string path, int thread_count)
         {
           
             matrix = new MatrixHandler.MatrixHandler(path);
-            threadCount = matrix.rows-1;
+            threadCount = thread_count;
         }
         public void Gauss_parallel()
         {
@@ -98,14 +101,14 @@ namespace Gauss_elim.threading
         int threadCount;
         float eps_abs;
         float eps_rel;
-        public Matrix_Cpp_Parallel(string input) {
+        public Matrix_Cpp_Parallel(string input, int thread_count) {
             matrixPtr = NativeMethods.GaussCpp.create_matrix(input);
             rows = NativeMethods.GaussCpp.get_rows(matrixPtr);
             cols = NativeMethods.GaussCpp.get_cols(matrixPtr);
             eps_abs = NativeMethods.GaussCpp.get_eps_abs(matrixPtr);
             eps_rel = NativeMethods.GaussCpp.get_eps_rel(matrixPtr);
 
-            threadCount = rows-1;
+            threadCount = thread_count;
         }
         public void Gauss_parallel()
         {

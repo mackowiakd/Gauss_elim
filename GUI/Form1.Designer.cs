@@ -33,8 +33,9 @@
             this.Run_button = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            this.thread_count = new System.Windows.Forms.NumericUpDown();
+            this.time_exe = new System.Windows.Forms.TextBox();
+            ((System.ComponentModel.ISupportInitialize)(this.thread_count)).BeginInit();
             this.SuspendLayout();
             // 
             // ASM_button
@@ -61,7 +62,7 @@
             // 
             // Run_button
             // 
-            this.Run_button.Location = new System.Drawing.Point(284, 315);
+            this.Run_button.Location = new System.Drawing.Point(353, 372);
             this.Run_button.Name = "Run_button";
             this.Run_button.Size = new System.Drawing.Size(75, 23);
             this.Run_button.TabIndex = 2;
@@ -88,20 +89,48 @@
             this.label1.TabIndex = 4;
             this.label1.Text = "Matrix file path ";
             // 
-            // numericUpDown1
+            // thread_count
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(211, 250);
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(120, 22);
-            this.numericUpDown1.TabIndex = 5;
-            this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
+            this.thread_count.AccessibleDescription = "liczba wątków programu";
+            this.thread_count.AccessibleName = "thread count";
+            this.thread_count.Location = new System.Drawing.Point(239, 249);
+            this.thread_count.Maximum = new decimal(new int[] {
+            64,
+            0,
+            0,
+            0});
+            this.thread_count.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.thread_count.Name = "thread_count";
+            this.thread_count.Size = new System.Drawing.Size(120, 22);
+            this.thread_count.TabIndex = 5;
+            this.thread_count.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.thread_count.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
+            // 
+            // time_exe
+            // 
+            this.time_exe.AccessibleDescription = "time";
+            this.time_exe.AccessibleName = "time";
+            this.time_exe.Location = new System.Drawing.Point(259, 314);
+            this.time_exe.Name = "time_exe";
+            this.time_exe.ReadOnly = true;
+            this.time_exe.Size = new System.Drawing.Size(100, 22);
+            this.time_exe.TabIndex = 6;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(534, 450);
-            this.Controls.Add(this.numericUpDown1);
+            this.Controls.Add(this.time_exe);
+            this.Controls.Add(this.thread_count);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.Run_button);
@@ -109,7 +138,7 @@
             this.Controls.Add(this.ASM_button);
             this.Name = "Form1";
             this.Text = "Form1";
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.thread_count)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -122,7 +151,8 @@
         private System.Windows.Forms.Button Run_button;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.NumericUpDown thread_count;
+        private System.Windows.Forms.TextBox time_exe;
     }
 }
 

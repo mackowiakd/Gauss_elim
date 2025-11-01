@@ -19,6 +19,7 @@ namespace GUI
         private string inputPath = "";
         private bool useAsm = false;
         private bool useCpp = false;
+        private int threadCount = 1;
         public Form1()
         {
             InitializeComponent();
@@ -36,6 +37,7 @@ namespace GUI
         {
             return useCpp;
         }
+        public int ThreadCount { get { return threadCount; } }
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             //bierze sciezke do pliku dla progrmu glownego main w cs
@@ -79,39 +81,19 @@ namespace GUI
                 return;
             }
 
-            //try
-            //{
-            //    var sw = System.Diagnostics.Stopwatch.StartNew();
-
-            //    if (useAsm)
-            //    {
-            //        // wywołanie Twojej klasy ASM
-                  
-            //        ParallelExecutor P_exe = new ParallelExecutor();
-            //        P_exe.run_asm(inputPath);
-                 
-            //    }
-            //    else if (useCpp)
-            //    {
-            //        // wywołanie Twojej klasy C++
-                  
-            //        ParallelExecutor P_exe = new ParallelExecutor();
-            //        P_exe.run_cpp(inputPath);
-            //    }
-
-            //    sw.Stop();
-
-            //    MessageBox.Show($"Zakończono.\nCzas wykonania: {sw.ElapsedMilliseconds} ms", "Wynik", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show($"Błąd wykonania: {ex.Message}", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //}
+           
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
-            //if > 64 while loop with message?
+            threadCount = (int)thread_count.Value;
+         
         }
+
+        public void SetExecutionTime(long milliseconds)
+        {
+            time_exe.Text = $"czas wykonania: {milliseconds} ms";
+        }
+
     }
 }

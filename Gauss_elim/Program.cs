@@ -14,33 +14,29 @@ using System.Windows.Forms; // ← To jest ważne!
 
 namespace Gauss_elim
 {
-  
+
 
     internal class Program
     {
         [STAThread]
         static void Main()
         {
-           Form1 form = new Form1();
+            ParallelExecutor P_exe = new ParallelExecutor();
+            Form1 form = new Form1();
+            string inputPath = form.GetInputFilePath();
             Application.Run(form); // ← WinForms GUI
 
-            if(form.IsUsingAsm())
-            {
-                string inputPath = form.GetInputFilePath();
-               
-                ParallelExecutor P_exe = new ParallelExecutor();
-                P_exe.run_asm(inputPath);
+            
+            if (form.IsUsingAsm())
+                    P_exe.run_asm(inputPath, form.ThreadCount);
+            else { 
+                    P_exe.run_asm(inputPath, form.ThreadCount);
             }
+            //zeby to zosatlo wypritowane Forms musi byc jako punkt startowy
+            form.SetExecutionTime(P_exe.elapsedTime);
 
-            if (form.IsUsingCpp())
-            {
-                string inputPath = form.GetInputFilePath();
-                
-                ParallelExecutor P_exe = new ParallelExecutor();
-                P_exe.run_cpp(inputPath);
-            }
+
         }
-
     }
 }
 
