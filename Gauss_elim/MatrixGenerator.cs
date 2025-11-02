@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gauss_elim.threading;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -13,26 +14,23 @@ namespace Gauss_elim.testing
         public int size { get;  set; }
         public float min { get;  set; }
         public float max { get;  set; }
-        public string fileName { get;  set; }
+      
         
 
-        public MatrixGenerator(int size, float min, float max, string file)
+        public MatrixGenerator( float min, float max)
         {
-
-            this.size = size;
             this.min = min; 
             this.max = max;
-            this.fileName = file;
-            GenerateMatrix();
+      
 
           
         }
 
-        public void GenerateMatrix()
+        public void GenerateMatrix(int size, string file)
         {
             Random rand = new Random();
 
-            using (StreamWriter writer = new StreamWriter(fileName))
+            using (StreamWriter writer = new StreamWriter(file))
             {
                 for (int i = 0; i < size; i++)
                 {
@@ -41,11 +39,12 @@ namespace Gauss_elim.testing
                     {
                         float value = (min + (float)(rand.NextDouble() * (max - min)));// rand.NextDouble() → losuje wartości zmiennoprzecinkowe z przedziału[0, 1)
                         row[j] = value.ToString("0.00", CultureInfo.InvariantCulture); // 4 miejsca po przecinku
-                        Console.WriteLine(row[j]);
+                        //Console.WriteLine(row[j]);
                     }
                    
-                    writer.WriteLine(string.Join(" ", row));
+                   
                 }
+                writer.Flush(); // <--- upewnia się, że wszystko zapisane
             }
         }
 
@@ -55,41 +54,42 @@ namespace Gauss_elim.testing
 
 
     public class tests { 
-        string file = "test_matrix.txt";
+        string file_asm ;
+        string file_cpp ;
         float min;
         float max;
-        public tests(float min, float max, string file)
+        ParallelExecutor P_exe = new ParallelExecutor();
+        MatrixGenerator generator;
+        public tests(float min, float max)
         {
             this.min = min;
             this.max = max;
-            this.file = file;
+            generator = new MatrixGenerator(min, max);
+          
+
         }
-        public void run_tests()
-        {
-            for (int threads = 1; threads <= 64; threads += 2)
-            {
+        public void run_tests() {
+            string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test_data");
+            string resultDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test_results");
+            Directory.CreateDirectory(baseDir); // upewnia się, że katalog istnieje
+            Directory.CreateDirectory(resultDir);
+            CsvLogger logger = new CsvLogger("results.csv");
 
-                for (int size = 50; size <= 2000; size *= 10)
-                {
-                    string fileName = $"matrix{size}x{size}.txt";
-                    MatrixGenerator generator = new MatrixGenerator(size, min, max, file);
-                    CsvLogger logger = new CsvLogger("results.csv");
+           
+                
+                for (int size = 50 ; size <= 2000; size *= 10) {
+                    string fileName = Path.Combine(baseDir, $"matrix{size}x{size}.txt");
+                    string file_asm = Path.Combine(resultDir, $"asm_{size}x{size}.txt");
+                    string file_cpp = Path.Combine(resultDir, $"cpp_{size}x{size}.txt");
+
+                    generator.GenerateMatrix(size, fileName);
+                    for (int threads = 1; threads <= 64; threads += 2) { 
                    
-                    //write time to log
-                    //save result to file
-
-
-                    var sw = System.Diagnostics.Stopwatch.StartNew();
-                    //call asm  
-                    sw.Stop();
-                    logger.LogResult(size, threads: 8, mode: "ASM", elapsedMs: sw.ElapsedMilliseconds);
-
-                  
-                    sw.Restart();
-                    // call cpp
-                    sw.Stop();
-                    logger.LogResult(size, threads: 8, mode: "CPP", elapsedMs: sw.ElapsedMilliseconds);
-                }
+       
+                        logger.LogResult(size, threads: threads, mode: "ASM", elapsedMs: P_exe.run_asm(fileName, threads, file_asm) );
+                 
+                        logger.LogResult(size, threads: threads, mode: "CPP", elapsedMs: P_exe.run_cpp(fileName, threads, file_cpp));
+                    }
             }
         }
 
@@ -103,7 +103,7 @@ namespace Gauss_elim.testing
                 float min = (float)(rnd.NextDouble() * -100);
                 float max = (float)(rnd.NextDouble() * 100);
                 string fileName = $"matrix{size}x{size}.txt";
-                MatrixGenerator generator = new MatrixGenerator(size, min, max, fileName);
+               
 
 
             }

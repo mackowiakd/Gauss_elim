@@ -1,5 +1,6 @@
 ﻿using Gauss_elim;
 using Gauss_elim.MatrixHandler;
+using Gauss_elim.testing;
 using Gauss_elim.threading;
 using GUI;
 using Microsoft.SqlServer.Server;
@@ -21,7 +22,17 @@ namespace Gauss_elim
         [STAThread]
         static void Main()
         {
-            ParallelExecutor P_exe = new ParallelExecutor();
+            float min = -347.76f;
+            float max =821.39f;
+            tests t = new tests(min ,max);
+            t.run_tests();
+
+
+
+
+            //pod GUI
+            /*
+             * ParallelExecutor P_exe = new ParallelExecutor();
             Form1 form = new Form1();
             string inputPath = form.GetInputFilePath();
             Application.Run(form); // ← WinForms GUI
@@ -33,7 +44,10 @@ namespace Gauss_elim
                     P_exe.run_asm(inputPath, form.ThreadCount);
             }
             //zeby to zosatlo wypritowane Forms musi byc jako punkt startowy
-            form.SetExecutionTime(P_exe.elapsedTime);
+            form.SetExecutionTime(P_exe.elapsedTime); 
+             * 
+            */
+
 
 
         }
