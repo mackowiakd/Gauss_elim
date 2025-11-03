@@ -41,10 +41,13 @@ namespace Gauss_elim.testing
                         row[j] = value.ToString("0.00", CultureInfo.InvariantCulture); // 4 miejsca po przecinku
                         //Console.WriteLine(row[j]);
                     }
-                   
-                   
+                    string line = string.Join(" ", row);
+
+                    // Zapisuje cały wiersz do pliku
+                    writer.WriteLine(line);
+
                 }
-                writer.Flush(); // <--- upewnia się, że wszystko zapisane
+            
             }
         }
 
@@ -77,38 +80,22 @@ namespace Gauss_elim.testing
 
            
                 
-                for (int size = 50 ; size <= 2000; size *= 10) {
+                for (int size = 50 ; size <= 2000; size *= 5) {
                     string fileName = Path.Combine(baseDir, $"matrix{size}x{size}.txt");
                     string file_asm = Path.Combine(resultDir, $"asm_{size}x{size}.txt");
                     string file_cpp = Path.Combine(resultDir, $"cpp_{size}x{size}.txt");
+                    generator.GenerateMatrix(size, fileName); //zeby nie mial tego samego pliku bo potem czas ~0ms
 
-                    generator.GenerateMatrix(size, fileName);
-                    for (int threads = 1; threads <= 64; threads += 2) { 
-                   
-       
+
+                for (int threads = 1; threads <= 64; threads *= 2) {
+                      
                         logger.LogResult(size, threads: threads, mode: "ASM", elapsedMs: P_exe.run_asm(fileName, threads, file_asm) );
-                 
                         logger.LogResult(size, threads: threads, mode: "CPP", elapsedMs: P_exe.run_cpp(fileName, threads, file_cpp));
                     }
             }
         }
 
-        public void numeric_stability_test()
-        {
-            //generuj macierz z bardzo małymi i bardzo dużymi liczbami
-            //porównaj wyniki asm i cpp
-            for (int size = 50; size <= 2000; size *= 10)
-            {
-                Random rnd = new Random();
-                float min = (float)(rnd.NextDouble() * -100);
-                float max = (float)(rnd.NextDouble() * 100);
-                string fileName = $"matrix{size}x{size}.txt";
-               
-
-
-            }
-
-        }
+      
     }
 
 
@@ -146,4 +133,30 @@ namespace Gauss_elim.testing
             this.max = float.Parse(Console.ReadLine(), CultureInfo.InvariantCulture);
 
             Console.WriteLine("Podaj nazwę pliku wyjściowego (np. matrix10x10.txt): ");
-            this.fileName = Console.ReadLine();*/
+            this.fileName = Console.ReadLine();
+
+ 
+ 
+ 
+   public void numeric_stability_test()
+        {
+            //generuj macierz z bardzo małymi i bardzo dużymi liczbami
+            //porównaj wyniki asm i cpp
+            for (int size = 50; size <= 2000; size *= 10)
+            {
+                Random rnd = new Random();
+                float min = (float)(rnd.NextDouble() * -100);
+                float max = (float)(rnd.NextDouble() * 100);
+                string fileName = $"matrix{size}x{size}.txt";
+               
+
+
+            }
+
+        }
+ 
+ 
+ 
+ 
+ 
+ */

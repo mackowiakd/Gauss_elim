@@ -20,9 +20,9 @@ namespace Gauss_elim.MatrixHandler
 
         private int rowOffset = 0; // zmienna offset powinna wskazywac ile ymm mozna sie przesunac aby dostac aktulane dane (w przypadku resizingu)
         private int colOffset = 0;
-        private const float eps = 1.0e-5f;
-        const float EPS_ABS = 1e-6f;
-        const float EPS_REL = 1e-4f;
+        public const float eps = 1.0e-5f;
+        public const float EPS_ABS = 1e-6f;
+        public const float EPS_REL = 1e-4f;
 
 
 
@@ -181,9 +181,15 @@ namespace Gauss_elim.MatrixHandler
 
             }
         }
-
+        /* do wykonania rownloeglego*/
         public void gauss_step(int n, int y)
         {
+           
+               
+            float pivot = data[y * cols + (y)]; //pivot
+            float elim = data[(n + 1) * cols + (y)];  // elim
+            float factor = elim / pivot; // 3. Oblicz współczynnik JEDEN RAZ
+
 
             //dzielenie wiersza na czesci po 8 float 
             for (int x = 0; x < cols; x += ymm)
@@ -191,10 +197,6 @@ namespace Gauss_elim.MatrixHandler
 
                 unsafe
                 {
-                    float* value1 = stackalloc float[2];
-                    value1[0] = data[y * cols + (y)]; //pivot
-                    value1[1] = data[(n + 1) * cols + (y)];  // elim
-                    
 
                     fixed (float* rowN = &data[y * rows + x]) // const for all col elim
                     fixed (float* rowNext = &data[(n + 1) * cols + x])
@@ -205,7 +207,7 @@ namespace Gauss_elim.MatrixHandler
                         //if pivot ==0 => all row can be skiped
                         if (data[y * cols + (y)] != 0)
                         {
-                            NativeMethods.GaussAsm.gauss_elimination(rowN, rowNext, value1);
+                            NativeMethods.GaussAsm.gauss_elimination(rowN, rowNext, factor);
                             ZeroUntilEps((n + 1) * cols + x, data[y * cols + (y)]);
 
 
@@ -220,6 +222,7 @@ namespace Gauss_elim.MatrixHandler
         /*zmienne offset do przemyslenia bo zawsze dokladamy > niz 8 wierzy i kolumn 0
          * wtedy trzeba zaczac od rowOffset ale col =0 i zmienia sie caly algorytm...
          */
+        /* wykonywanie eliminacji gaussa tylko dla 1 watku - metoda do tesu algorytmu */
         public void GaussEliminationManaged()
         {
             for (int y = 0; y < cols - 1; y++)
@@ -227,10 +230,13 @@ namespace Gauss_elim.MatrixHandler
                 //zawsze pivoting
                 ApplyPivot(y);
                 float pivot = data[y * cols + (y)];
+   
+             
 
                 for (int n = y; n < rows - 1; n++) // kazde n wiersz dla innega watku
                 {
                     float elim = data[(n + 1) * cols + (y)]; // element do eliminacji z rowNext
+                    float factor = elim / pivot; // 3. Oblicz współczynnik JEDEN RAZ
 
                     //dzielenie wiersza na czesci po 8 float 
                     for (int x = 0; x < cols; x += ymm)
@@ -241,9 +247,6 @@ namespace Gauss_elim.MatrixHandler
 
                         unsafe
                         {
-                            float* value1 = stackalloc float[2];
-                            value1[0] = pivot;
-                            value1[1] = elim;  // to jest const dla danego n ALE moze ulec zmianie przy x=0
                            
 
                             fixed (float* rowN = &data[y * rows + x]) // const for all col elim
@@ -255,7 +258,7 @@ namespace Gauss_elim.MatrixHandler
                                 //if pivot ==0 => all row can be skiped
                                 if (pivot != 0)
                                 {
-                                    NativeMethods.GaussAsm.gauss_elimination(rowN, rowNext, value1);
+                                    NativeMethods.GaussAsm.gauss_elimination(rowN, rowNext, factor);
                                     ZeroUntilEps((n + 1) * cols + x, pivot);
                                 }
 

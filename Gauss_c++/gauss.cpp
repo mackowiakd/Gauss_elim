@@ -16,7 +16,7 @@ void MatrixHandler_cpp:: LoadMatrixFromFile(const std::string& path) {
         float val;
         while (iss >> val) {
             rowVals.push_back(val);
-			std::cout << val << " ";
+			//std::cout << val << " ";
         }
 
         if (rowVals.empty()) continue;
@@ -28,7 +28,7 @@ void MatrixHandler_cpp:: LoadMatrixFromFile(const std::string& path) {
 
         values.insert(values.end(), rowVals.begin(), rowVals.end());
         rows++;
-        std:: cout<<"\n";
+       // std:: cout<<"\n";
     }
 
     data = std::move(values);
@@ -42,7 +42,7 @@ void MatrixHandler_cpp:: SaveMatrixToFile(const std::string& path)  {
     if (!file.is_open())
         throw std::runtime_error("Nie mozna zapisac pliku: " + path);
 
-    file << std::fixed << std::setprecision(6);
+    file << std::fixed << std::setprecision(4);
 
     for (int r = 0; r < rows; ++r) {
         for (int c = 0; c < cols; ++c) {
@@ -90,7 +90,7 @@ void MatrixHandler_cpp:: ApplyPivot(int currentRow) {
     return;
 }
 
-
+/* metoda dla jednowatkowego programu */
 void MatrixHandler_cpp:: GaussElimination() {
    
     for (int y=0; y < cols - 1; y++) {
@@ -133,6 +133,7 @@ void MatrixHandler_cpp::print_matrix(){
     std::cout << "\n";
 
 }
+/*dla wielowatkowej postaci */
 void MatrixHandler_cpp::GaussEliminationStep(int pivotRow, int y) {
     if (std::fabs(pivot) > EPS) {
 
