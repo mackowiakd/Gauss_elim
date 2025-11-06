@@ -22,10 +22,12 @@ namespace Gauss_elim
         [STAThread]
         static void Main()
         {
+            string rel = "release";
+           // string debug = "debug";
             float min = -347.76f;
             float max =821.39f;
             tests t = new tests(min ,max);
-            t.run_tests();
+            t.run_tests(rel);
 
 
 

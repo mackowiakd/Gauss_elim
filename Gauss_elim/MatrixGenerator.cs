@@ -71,26 +71,26 @@ namespace Gauss_elim.testing
           
 
         }
-        public void run_tests() {
-            string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test_data");
+        public void run_tests(string config) {
+            string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"test_data_{config}");
             string resultDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test_results");
             Directory.CreateDirectory(baseDir); // upewnia się, że katalog istnieje
             Directory.CreateDirectory(resultDir);
-            CsvLogger logger = new CsvLogger("results.csv");
+            CsvLogger logger = new CsvLogger($"results_{config}.csv");
 
            
                 
                 for (int size = 50 ; size <= 2000; size *= 5) {
-                    string fileName = Path.Combine(baseDir, $"matrix{size}x{size}.txt");
-                    string file_asm = Path.Combine(resultDir, $"asm_{size}x{size}.txt");
-                    string file_cpp = Path.Combine(resultDir, $"cpp_{size}x{size}.txt");
-                    generator.GenerateMatrix(size, fileName); //zeby nie mial tego samego pliku bo potem czas ~0ms
+                    string file_inpt = Path.Combine(baseDir, $"matrix{size}x{size}.txt");
+                    string file_outp_asm = Path.Combine(resultDir, $"asm_{size}x{size}.txt");
+                    string file_outp_cpp = Path.Combine(resultDir, $"cpp_{size}x{size}.txt");
+                    generator.GenerateMatrix(size, file_inpt); //zeby nie mial tego samego pliku bo potem czas ~0ms
 
 
                 for (int threads = 1; threads <= 64; threads *= 2) {
                       
-                        logger.LogResult(size, threads: threads, mode: "ASM", elapsedMs: P_exe.run_asm(fileName, threads, file_asm) );
-                        logger.LogResult(size, threads: threads, mode: "CPP", elapsedMs: P_exe.run_cpp(fileName, threads, file_cpp));
+                        logger.LogResult(size, threads: threads, mode: "ASM", elapsedMs: P_exe.run_asm(file_inpt, threads, file_outp_asm) );
+                        logger.LogResult(size, threads: threads, mode: "CPP", elapsedMs: P_exe.run_cpp(file_inpt, threads, file_outp_cpp));
                     }
             }
         }
