@@ -26,7 +26,6 @@ namespace Gauss_elim.threading
         {
             Stopwatch sw = Stopwatch.StartNew();
             asm_parallel matrixAsm = new asm_parallel(input1, thread_count, outp);
-            //Console.WriteLine($"Liczba wątków: {Environment.ProcessorCount}");
             matrixAsm.Gauss_parallel();
             sw.Stop();
             matrixAsm.Dispose();
@@ -63,21 +62,24 @@ namespace Gauss_elim.threading
         {
             matrix.checkSize();
 
-            //PARALELL start for n= y
             for (int y = 0; y < matrix.cols - 1; y++)
             {
-                // pivot dla aktualnej kolumny
-                matrix.ApplyPivot(y);
+               
+                float pivot = matrix.data[y * matrix.cols + (y)];
 
-                //rwnoległe przetwarzanie kolejnych wierszy
-                Parallel.For(y, matrix.rows - 1, new ParallelOptions { MaxDegreeOfParallelism = threadCount }, row_elim =>
+                if (Math.Abs(pivot) > 1.0e-6f) // Sprawdź, czy pivot NIE JEST zerem w wyniku checkSize
                 {
+                    
+                    matrix.ApplyPivot(y);
 
-                    if (matrix.data[y * matrix.cols + (y)] !=0)
+
+                    Parallel.For(y, matrix.rows - 1, new ParallelOptions { MaxDegreeOfParallelism = threadCount }, row_elim =>
+                    {
+                      
                         matrix.gauss_step(row_elim, y);
 
-                });
-             
+                    });
+                }
 
             }
 
@@ -121,11 +123,11 @@ namespace Gauss_elim.threading
                 // pivot dla aktualnej kolumny
                 NativeMethods.GaussCpp.apply_pivot(matrixPtr, y);
 
-                //rwnoległe przetwarzanie kolejnych wierszy
+                
                 Parallel.For(y , rows - 1, new ParallelOptions { MaxDegreeOfParallelism = threadCount }, row_elim =>
                 {
                     NativeMethods.GaussCpp.gauss_step(matrixPtr,row_elim,y);
-                    //Console.WriteLine($"Wątek {Task.CurrentId} przetworzył wiersz {row_elim} dla kolumny {y}");
+                  
                 });
 
                 // ptr->ZeroUntilEps(y, y);

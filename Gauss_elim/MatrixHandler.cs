@@ -184,8 +184,7 @@ namespace Gauss_elim.MatrixHandler
         /* do wykonania rownloeglego*/
         public void gauss_step(int n, int y)
         {
-           
-               
+        
             float pivot = data[y * cols + (y)]; //pivot
             float elim = data[(n + 1) * cols + (y)];  // elim
             float factor = elim / pivot; // 3. Oblicz współczynnik JEDEN RAZ
