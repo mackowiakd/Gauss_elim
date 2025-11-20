@@ -4,10 +4,14 @@
 
 extern "C" {
 
-    void start_gauss(const char* input_path, const char* output_path) {
+    __declspec(dllexport)
+    void start_gauss(const char* input_path, const char* output_path, const char* outp_slnVec) {
         MatrixHandler_cpp matrix(input_path);
         matrix.GaussElimination(); //to do threading
+        matrix.BackSubstitution();
         matrix.SaveMatrixToFile(output_path);
+
+		matrix.SaveSlnMtrx(outp_slnVec);
     } //do zmiany na pojedyncze funkcje
 
     __declspec(dllexport)

@@ -57,19 +57,8 @@ namespace Gauss_elim.MatrixHandler_ASM
 
             return (values.ToArray(), rows, cols);
         }
-        public void ZeroUntilEps(int startIndex, float pivot) //zerowanie wiersza po kazdej eliminacji i to w czesciach (wdg petli x)
-        {
-            // przechodzimy po wierszu od startIndex do startIndex + rejestr YMM (8 float)
-            for (int i = startIndex; i < startIndex + ymm; i++)
-            {
-                if (Math.Abs(data[i]) < EPS_ABS + EPS_REL * Math.Abs(pivot))
-                    data[i] = 0f;
-                
-            }
-        }
-
-       
         
+
 
         public void SaveMatrixToFile(string path)
         {
@@ -167,22 +156,7 @@ namespace Gauss_elim.MatrixHandler_ASM
             }
         }
 
-
-
-        /* do wykonania rownloeglego*/
-
-        //zerowanie tylko 1 wiersza przez watek ktory byl za nieg odpowiedzialny
-        public void ZeroUntilEps_parallel(int elim_startIdx, float pivot)
-        {
-            int i = elim_startIdx;
-            // przechodzimy po wierszu od pivota do konca tego wiersza
-            for (int j = 0; j < ymm; j++, i++)
-            {
-                if (Math.Abs(data[i]) < EPS_ABS + EPS_REL * Math.Abs(pivot))
-                    data[i] = 0f;
-
-            }
-        }
+     
         /* do wykonania rownloeglego*/
         public void gauss_step(int n, int y)
         {
@@ -208,8 +182,8 @@ namespace Gauss_elim.MatrixHandler_ASM
                         //if pivot ==0 => all row can be skiped
                         if (data[y * cols + (y)] != 0)
                         {
-                            NativeMethods.import_func.gauss_elimination(rowN, rowNext, factor);
-                            ZeroUntilEps((n + 1) * cols + x, data[y * cols + (y)]);
+                            NativeMethods.import_func.gauss_elimination(rowN, rowNext, factor, Math.Abs(pivot));
+                            
 
 
 
@@ -257,8 +231,8 @@ namespace Gauss_elim.MatrixHandler_ASM
                                 //if pivot ==0 => all row can be skiped
                                 if (pivot != 0)
                                 {
-                                    NativeMethods.import_func.gauss_elimination(rowN, rowNext, factor);
-                                    ZeroUntilEps((n + 1) * cols + x, pivot);
+                                    NativeMethods.import_func.gauss_elimination(rowN, rowNext, factor, Math.Abs(pivot));
+                                    //ZeroUntilEps((n + 1) * cols + x, pivot); -> In ASM
                                 }
 
                             }
@@ -285,3 +259,29 @@ namespace Gauss_elim.MatrixHandler_ASM
         }
     }
 }
+
+
+/*   //zerowanie tylko 1 wiersza przez watek ktory byl za nieg odpowiedzialny
+        public void ZeroUntilEps_parallel(int elim_startIdx, float pivot)
+        {
+            int i = elim_startIdx;
+            // przechodzimy po wierszu od pivota do konca tego wiersza
+            for (; i < cols;  i++)
+            {
+                if (Math.Abs(data[i]) < EPS_ABS + EPS_REL * Math.Abs(pivot))
+                    data[i] = 0f;
+
+            }
+        }
+        public void ZeroUntilEps(int startIndex, float pivot) //zerowanie wiersza po kazdej eliminacji i to w czesciach (wdg petli x)
+        {
+            // przechodzimy po wierszu od startIndex do startIndex + rejestr YMM (8 float)
+            for (int i = startIndex; i <cols; i++)
+            {
+                if (Math.Abs(data[i]) < EPS_ABS + EPS_REL * Math.Abs(pivot))
+                    data[i] = 0f;
+
+            }
+        }
+
+*/

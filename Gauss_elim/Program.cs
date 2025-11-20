@@ -25,9 +25,9 @@ namespace Gauss_elim
         {
        
             //string mode = "release"; //"debug"; //
-            float min = -237.42f;
-            float max =108.89f;
-            int size = 8;
+            float min = -900.42f;
+            float max =888.89f;
+            int size = 7;
             // tests t = new tests(min ,max);
             // t.run_tests(mode);
             MatrixGenerator generator = new MatrixGenerator(min, max);
@@ -36,17 +36,20 @@ namespace Gauss_elim
             string file_inpt = Path.Combine(baseDir, $"matrix{size}x{size}.txt");
             generator.GenerateMatrix(size, file_inpt);
 
-            //testy 1 watkowo 
-            MatrixHandler asm_1thread_mtrx = new MatrixHandler(file_inpt);
-            asm_1thread_mtrx.checkSize();
-            asm_1thread_mtrx.GaussEliminationManaged();
-            asm_1thread_mtrx.SaveMatrixToFile(Path.Combine(baseDir, $"result_managed_{size}x{size}_1thread.txt"));
+            ////testy 1 watkowo 
+            //MatrixHandler asm_1thread_mtrx = new MatrixHandler(file_inpt);
+            //asm_1thread_mtrx.checkSize();
+            //asm_1thread_mtrx.GaussEliminationManaged();
+            //asm_1thread_mtrx.SaveMatrixToFile(Path.Combine(baseDir, $"result_managed_{size}x{size}_1thread.txt"));
 
-            ////wielotkowa wersja asm
+            //testy 1 watkowa cpp z bckw substitution
+            NativeMethods.import_func.start_gauss(file_inpt, Path.Combine(baseDir, $"CPP_{size}x{size}_SingT.txt"), Path.Combine(baseDir, $"CPP_sln{size}x{size}_SingT.txt"));
+           
+            //wielotkowa wersja asm
             //ParallelExecutor P_exe = new ParallelExecutor();
             //P_exe.run_asm(file_inpt, 2, Path.Combine(baseDir, $"result_asm_{size}x{size}_4threads.txt"));
 
-           
+
 
 
 

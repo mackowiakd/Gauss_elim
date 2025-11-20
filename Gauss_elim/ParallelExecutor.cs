@@ -86,7 +86,7 @@ namespace Gauss_elim.threading
             
 
         }
-
+        
         public void Dispose()
         {
             matrix.SaveMatrixToFile(file_outp);
@@ -136,7 +136,10 @@ namespace Gauss_elim.threading
           
 
         }
+        public void Gauss_singleT()
+        {
 
+        }
 
         public void Dispose()
         {

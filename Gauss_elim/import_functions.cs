@@ -26,7 +26,7 @@ namespace Gauss_elim.NativeMethods{
 
         // --- IMPORTY Z ASEMBLERA (używamy stałej AsmPath) ---
         [DllImport(AsmPath, CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern float gauss_elimination(float* rowN, float* rowNext, float pivElim);
+        public static unsafe extern float gauss_elimination(float* rowN, float* rowNext, float pivElim, float abs_pivot);
 
         // --- IMPORTY Z C++ (używamy stałej CppPath) ---
 
@@ -34,7 +34,7 @@ namespace Gauss_elim.NativeMethods{
 
 
         [DllImport(CppPath, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void start_gauss(string input_path, string output_path);
+        public static extern void start_gauss(string input_path, string output_path, string outp_slnVec);
 
         [DllImport(CppPath, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr create_matrix(string inputPath);

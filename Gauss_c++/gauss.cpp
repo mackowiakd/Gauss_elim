@@ -56,6 +56,25 @@ void MatrixHandler_cpp:: SaveMatrixToFile(const std::string& path)  {
     file.close();
     // std::cout << "Plik zapisano w: " << path << std::endl;
 }
+void MatrixHandler_cpp::SaveSlnMtrx(const std::string& path) {
+    std::ofstream file(path, std::ios::trunc);
+    if (!file.is_open())
+        throw std::runtime_error("Nie mozna zapisac pliku: " + path);
+
+    file << std::fixed << std::setprecision(4);
+
+    for (int r = 0; r < rows; ++r) {
+       
+            file << slnMtrx[r];
+           
+                file << " ";
+        }
+        file << "\n";
+    
+
+    file.close();
+    // std::cout << "Plik zapisano w: " << path << std::endl;
+}
 
 void MatrixHandler_cpp:: ZeroUntilEps(int startRow, int startCol) {
     float pivot = std::fabs(at(startRow, startCol));
@@ -137,15 +156,74 @@ void MatrixHandler_cpp::print_matrix(){
 void MatrixHandler_cpp::GaussEliminationStep(int pivotRow, int y) {
     if (std::fabs(pivot) > EPS) {
 
-       
-		float factor = at(pivotRow + 1, y) / at(y, y); //pivot = at(y,y);
+
+        float factor = at(pivotRow + 1, y) / at(y, y); //pivot = at(y,y);
         for (int j = y; j < cols; j++) {
 
             at(pivotRow + 1, j) -= factor * at(y, j); // factor* pivot[j]
         }
-        
+
     }
+
 }
+       
+    void MatrixHandler_cpp::BackSubstitution() {
+        // Za³o¿enia:
+        // rows = N (liczba równañ)
+        // cols = N + 1 (macierz A + kolumna wyrazów wolnych b)
+
+        // Przygotowujemy wektor na wyniki (x)
+        // slnMtrx to std::vector<float> zdefiniowany w klasie
+        slnMtrx.resize(rows);
+
+        // Pêtla g³ówna: idziemy od ostatniego wiersza (dó³) do pierwszego (góra)
+        for (int i = rows - 1; i >= 0; i--) {
+
+            float sum = 0.0f;
+
+            // --- TO JEST CZÊŒÆ DLA AVX ---
+            // Pêtla wewnêtrzna: Obliczamy sumê iloczynów znanych ju¿ niewiadomych.
+            // Sumujemy elementy na prawo od przek¹tnej (od kolumny i+1 do N-1).
+            for (int j = i + 1; j < rows; j++) {
+                float a_ij = data[i * cols + j]; // Wspó³czynnik z macierzy A
+                float x_j = slnMtrx[j];         // Znany ju¿ wynik x (obliczony w poprzednich krokach pêtli 'i')
+
+                sum += a_ij * x_j;
+            }
+            // -----------------------------
+
+            // Pobieramy wyraz wolny b_i. 
+            // Znajduje siê on w ostatniej kolumnie macierzy (indeks = cols - 1).
+            float b_i = data[i * cols + (cols - 1)];
+
+            // Pobieramy pivot (element na przek¹tnej)
+            float pivot = data[i * cols + i];
+
+            // Zabezpieczenie (opcjonalne): Dzielenie przez zero
+            if (std::abs(pivot) < 1e-9f) {
+                // Uk³ad sprzeczny lub nieoznaczony, albo b³¹d numeryczny
+                slnMtrx[i] = 0.0f;
+            }
+            else {
+                // Finalny wzór na x_i: (b - suma) / pivot
+                slnMtrx[i] = (b_i - sum) / pivot;
+            }
+        }
+    }
 
 
+/*
+// Column-Oriented Back Substitution
+void MatrixHandler_cpp:: BackSubstitution() {
+    slnMtrx.resize(rows);
+	std::vector<float> mtrxOutp = data; // kopiowanie macierzy wyjsciowej 
+   
+    for (int j = cols - 1; j >= 0; j--) {
+        slnMtrx[j] += mtrxOutp[j * cols + j]; //mtrxOutp[j][j]
+        slnMtrx[j] /= mtrxOutp[j * cols + j - 1];
+        for (int i = j - 1; i >= 0; i--) {
+            mtrxOutp[i * cols + j] *= slnMtrx[j];
+            //tu dla asma chce przekazac mu transponowana macierz wyjsciowa -> mozenie na instrAVX
+        }
+    }*/
 

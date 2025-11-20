@@ -19,6 +19,7 @@ public:
     const float EPS_ABS = 1e-6f;
     const float EPS_REL = 1e-4f;
     std::vector<float> data;        // macierz w postaci 1D (row-major)
+    std::vector<float> slnMtrx;
 
 
     // Konstruktor wczytuj¹cy macierz z pliku
@@ -48,4 +49,6 @@ public:
 
     void GaussElimination();
     void GaussEliminationStep(int nRow, int col);
+	void BackSubstitution();
+    void SaveSlnMtrx(const std::string& path);
 };
