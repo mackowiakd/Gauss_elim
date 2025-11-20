@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Gauss_elim.NativeMethods;
 
-namespace Gauss_elim.MatrixHandler
+namespace Gauss_elim.MatrixHandler_ASM
 {
 
     public class MatrixHandler
@@ -52,6 +53,7 @@ namespace Gauss_elim.MatrixHandler
 
                 rows++;
             }
+            Console.WriteLine($"Wczytano macierz o rozmiarze {rows}x{cols} z pliku: {path}");
 
             return (values.ToArray(), rows, cols);
         }
@@ -98,7 +100,7 @@ namespace Gauss_elim.MatrixHandler
             int newRows = ymm;
             //rommiar < 8 ??
 
-            if (cols != rows)
+            if (cols != rows +1)
                 throw new InvalidOperationException("Macierz nie jest kwadratowa.");
 
             if (cols % ymm == 0)
@@ -108,7 +110,7 @@ namespace Gauss_elim.MatrixHandler
             else if (cols > ymm && cols % ymm != 0)
             {
                 newCols = (int)Math.Ceiling((double)cols / ymm) * ymm;
-                newRows = newCols;
+                newRows = newCols-1;
             }
 
             float[] newData = new float[newCols * newCols];
@@ -132,7 +134,7 @@ namespace Gauss_elim.MatrixHandler
 
             data = newData;
             cols = newCols;
-            rows = newCols;
+            rows = newRows;
 
         }
 
@@ -197,7 +199,7 @@ namespace Gauss_elim.MatrixHandler
                 unsafe
                 {
 
-                    fixed (float* rowN = &data[y * rows + x]) // const for all col elim
+                    fixed (float* rowN = &data[y * cols + x]) // const for all col elim
                     fixed (float* rowNext = &data[(n + 1) * cols + x])
 
 
@@ -206,7 +208,7 @@ namespace Gauss_elim.MatrixHandler
                         //if pivot ==0 => all row can be skiped
                         if (data[y * cols + (y)] != 0)
                         {
-                            NativeMethods.GaussAsm.gauss_elimination(rowN, rowNext, factor);
+                            NativeMethods.import_func.gauss_elimination(rowN, rowNext, factor);
                             ZeroUntilEps((n + 1) * cols + x, data[y * cols + (y)]);
 
 
@@ -218,13 +220,11 @@ namespace Gauss_elim.MatrixHandler
                 
             }
         }
-        /*zmienne offset do przemyslenia bo zawsze dokladamy > niz 8 wierzy i kolumn 0
-         * wtedy trzeba zaczac od rowOffset ale col =0 i zmienia sie caly algorytm...
-         */
+        
         /* wykonywanie eliminacji gaussa tylko dla 1 watku - metoda do tesu algorytmu */
         public void GaussEliminationManaged()
         {
-            for (int y = 0; y < cols - 1; y++)
+            for (int y = 0; y < rows-1; y++) //interesuje mnie tylko przekątna główna, która jest wyznaczona przez min(rows, cols).
             {
                 //zawsze pivoting
                 ApplyPivot(y);
@@ -248,7 +248,7 @@ namespace Gauss_elim.MatrixHandler
                         {
                            
 
-                            fixed (float* rowN = &data[y * rows + x]) // const for all col elim
+                            fixed (float* rowN = &data[y * cols + x]) // const for all col elim
                             fixed (float* rowNext = &data[(n + 1) * cols + x])
 
 
@@ -257,7 +257,7 @@ namespace Gauss_elim.MatrixHandler
                                 //if pivot ==0 => all row can be skiped
                                 if (pivot != 0)
                                 {
-                                    NativeMethods.GaussAsm.gauss_elimination(rowN, rowNext, factor);
+                                    NativeMethods.import_func.gauss_elimination(rowN, rowNext, factor);
                                     ZeroUntilEps((n + 1) * cols + x, pivot);
                                 }
 
@@ -265,7 +265,7 @@ namespace Gauss_elim.MatrixHandler
                         }
                     }
 
-                    //czy lepiej ty raz zrobic zero eps dla mtrx  wiersza po zakonczeniu eliminacji
+                    
                 }
             }
 

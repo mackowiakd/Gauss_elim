@@ -1,5 +1,5 @@
 ﻿using Gauss_elim;
-using Gauss_elim.MatrixHandler;
+using Gauss_elim.MatrixHandler_ASM;
 using Gauss_elim.testing;
 using Gauss_elim.threading;
 using GUI;
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,38 +24,53 @@ namespace Gauss_elim
         static void Main()
         {
        
-            string mode = "release"; //"debug"; //
-            float min = -637.46f;
-            float max =728.89f;
-            tests t = new tests(min ,max);
-            t.run_tests(mode);
+            //string mode = "release"; //"debug"; //
+            float min = -237.42f;
+            float max =108.89f;
+            int size = 8;
+            // tests t = new tests(min ,max);
+            // t.run_tests(mode);
+            MatrixGenerator generator = new MatrixGenerator(min, max);
+            string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"macierz_rozszerz");
+            Directory.CreateDirectory(baseDir); // upewnia się, że katalog istnieje
+            string file_inpt = Path.Combine(baseDir, $"matrix{size}x{size}.txt");
+            generator.GenerateMatrix(size, file_inpt);
 
+            //testy 1 watkowo 
+            MatrixHandler asm_1thread_mtrx = new MatrixHandler(file_inpt);
+            asm_1thread_mtrx.checkSize();
+            asm_1thread_mtrx.GaussEliminationManaged();
+            asm_1thread_mtrx.SaveMatrixToFile(Path.Combine(baseDir, $"result_managed_{size}x{size}_1thread.txt"));
 
+            ////wielotkowa wersja asm
+            //ParallelExecutor P_exe = new ParallelExecutor();
+            //P_exe.run_asm(file_inpt, 2, Path.Combine(baseDir, $"result_asm_{size}x{size}_4threads.txt"));
 
-
-            //pod GUI
-            /*
-             * ParallelExecutor P_exe = new ParallelExecutor();
-            Form1 form = new Form1();
-            string inputPath = form.GetInputFilePath();
-            Application.Run(form); // ← WinForms GUI
-
-            
-            if (form.IsUsingAsm())
-                    P_exe.run_asm(inputPath, form.ThreadCount);
-            else { 
-                    P_exe.run_asm(inputPath, form.ThreadCount);
-            }
-            //zeby to zosatlo wypritowane Forms musi byc jako punkt startowy
-            form.SetExecutionTime(P_exe.elapsedTime); 
-             * 
-            */
+           
 
 
 
         }
     }
 }
+
+//pod GUI
+/*
+ * ParallelExecutor P_exe = new ParallelExecutor();
+Form1 form = new Form1();
+string inputPath = form.GetInputFilePath();
+Application.Run(form); // ← WinForms GUI
+
+
+if (form.IsUsingAsm())
+        P_exe.run_asm(inputPath, form.ThreadCount);
+else { 
+        P_exe.run_asm(inputPath, form.ThreadCount);
+}
+//zeby to zosatlo wypritowane Forms musi byc jako punkt startowy
+form.SetExecutionTime(P_exe.elapsedTime); 
+ * 
+*/
 
 //static void Main(string[] args)
 //{

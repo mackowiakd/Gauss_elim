@@ -48,13 +48,13 @@ namespace Gauss_elim.threading
 
     public class asm_parallel
     {
-        MatrixHandler.MatrixHandler matrix;
+        MatrixHandler_ASM.MatrixHandler matrix;
         int threadCount;
         string file_outp;
         public asm_parallel(string path, int thread_count, string outp)
         {
           
-            matrix = new MatrixHandler.MatrixHandler(path);
+            matrix = new MatrixHandler_ASM.MatrixHandler(path);
             this.threadCount = thread_count;
             this.file_outp = outp;
         }
@@ -62,7 +62,7 @@ namespace Gauss_elim.threading
         {
             matrix.checkSize();
 
-            for (int y = 0; y < matrix.cols - 1; y++)
+            for (int y = 0; y < matrix.rows - 1; y++)
             {
                
                 float pivot = matrix.data[y * matrix.cols + (y)];
@@ -107,11 +107,11 @@ namespace Gauss_elim.threading
         float eps_rel;
         string file_outp;
         public Matrix_Cpp_Parallel(string input, int thread_count, string outp) {
-            matrixPtr = NativeMethods.GaussCpp.create_matrix(input);
-            rows = NativeMethods.GaussCpp.get_rows(matrixPtr);
-            cols = NativeMethods.GaussCpp.get_cols(matrixPtr);
-            eps_abs = NativeMethods.GaussCpp.get_eps_abs(matrixPtr);
-            eps_rel = NativeMethods.GaussCpp.get_eps_rel(matrixPtr);
+            matrixPtr = NativeMethods.import_func.create_matrix(input);
+            rows = NativeMethods.import_func.get_rows(matrixPtr);
+            cols = NativeMethods.import_func.get_cols(matrixPtr);
+            eps_abs = NativeMethods.import_func.get_eps_abs(matrixPtr);
+            eps_rel = NativeMethods.import_func.get_eps_rel(matrixPtr);
             file_outp = outp;
 
             this.threadCount = thread_count;
@@ -119,19 +119,19 @@ namespace Gauss_elim.threading
         public void Gauss_parallel()
         {
           
-            for (int y = 0; y < cols - 1; y++) {
+            for (int y = 0; y < rows-1; y++) {
                 // pivot dla aktualnej kolumny
-                NativeMethods.GaussCpp.apply_pivot(matrixPtr, y);
+                NativeMethods.import_func.apply_pivot(matrixPtr, y);
 
                 
                 Parallel.For(y , rows - 1, new ParallelOptions { MaxDegreeOfParallelism = threadCount }, row_elim =>
                 {
-                    NativeMethods.GaussCpp.gauss_step(matrixPtr,row_elim,y);
+                    NativeMethods.import_func.gauss_step(matrixPtr,row_elim,y);
                   
                 });
 
                 // ptr->ZeroUntilEps(y, y);
-                NativeMethods.GaussCpp.zero_until_eps(matrixPtr, y, y);
+                NativeMethods.import_func.zero_until_eps(matrixPtr, y, y);
             }
           
 
@@ -140,10 +140,10 @@ namespace Gauss_elim.threading
 
         public void Dispose()
         {
-            NativeMethods.GaussCpp.save_matrix(matrixPtr, file_outp); //z tym czy bez tego i tak printuje
+            NativeMethods.import_func.save_matrix(matrixPtr, file_outp); //z tym czy bez tego i tak printuje
             if (matrixPtr != IntPtr.Zero)
             {
-                NativeMethods.GaussCpp.destroy_matrix(matrixPtr);
+                NativeMethods.import_func.destroy_matrix(matrixPtr);
                 matrixPtr = IntPtr.Zero;
             }
         }
