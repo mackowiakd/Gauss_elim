@@ -244,7 +244,51 @@ namespace Gauss_elim.MatrixHandler_ASM
             }
 
         }
+        public void BackSubstitution()
+        {
+            // slnVector to tablica na wyniki 'x' (rozmiar N)
+            float[] slnVector = new float[rows];
 
+            unsafe
+            {
+                fixed (float* mtrxPtr = data)
+                fixed (float* slnPtr = slnVector)
+                {
+                    // Pętla od ostatniego wiersza w górę
+                    for (int i = rows - 1; i >= 0; i--)
+                    {
+                        // 1. Przygotuj dane dla ASM
+                        // Chcemy sumować elementy od kolumny (i + 1) do końca
+                        int startCol = i + 1;
+                        int count = rows - startCol; // Ile liczb przemnożyć
+
+                        float sum = 0.0f;
+
+                        if (count > 0)
+                        {
+                            // Wskaźnik na start danych w wierszu macierzy
+                            float* rowSegment = mtrxPtr + (i * cols) + startCol;
+
+                            // Wskaźnik na start danych w wektorze wyników
+                            float* slnSegment = slnPtr + startCol;
+
+                            // WOŁAMY ASM: "Policz iloczyn skalarny tych fragmentów"
+                            sum = NativeMethods.import_func.calculate_dot_product(rowSegment, slnSegment, count);
+                        }
+
+                        // 2. Dokończ obliczenia w C# (to jest szybkie, bo tylko raz na wiersz)
+                        float b_i = mtrxPtr[i * cols + (cols - 1)]; // Wyraz wolny (ostatnia kolumna)
+                        float pivot = mtrxPtr[i * cols + i];        // Pivot
+
+                        if (Math.Abs(pivot) > 1e-9f)
+                            slnVector[i] = (b_i - sum) / pivot;
+                        else
+                            slnVector[i] = 0; // Zabezpieczenie
+                    }
+                }
+            }
+            // Tutaj masz gotowy slnVector z wynikami!
+        }
         public void PrintMatrix()
         {
             for (int r = 0; r < rows; r++)

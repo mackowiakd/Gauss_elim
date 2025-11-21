@@ -89,5 +89,83 @@ gauss_elimination endp;
 
 ;===============================================
 
+
+.code
+
+; float calculate_dot_product(float* rowPtr, float* xPtr, int count)
+; RCX = rowPtr
+; RDX = xPtr
+; R8  = count
+; Zwraca wynik w XMM0
+
+calculate_dot_product proc
+    
+    ; Zerujemy akumulator sumy (YMM0)
+    vxorps ymm0, ymm0, ymm0 
+
+    ; SprawdŸ, czy mamy chocia¿ 8 elementów do przetworzenia
+    cmp r8, 8
+    jl Scalar_Loop ; Jeœli mniej ni¿ 8, skocz do pêtli skalarnej
+
+Vector_Loop:
+    ; --- G£ÓWNA PÊTLA AVX (po 8 sztuk) ---
+    
+    vmovups ymm1, [rcx]      ; Za³aduj 8 liczb z macierzy
+    vmovups ymm2, [rdx]      ; Za³aduj 8 liczb z wektora X
+    
+    vmulps ymm1, ymm1, ymm2  ; Wymnó¿: A * X
+    vaddps ymm0, ymm0, ymm1  ; Dodaj do sumy czêœciowej w YMM0
+
+    ; Przesuñ wskaŸniki o 8 floatów (32 bajty)
+    add rcx, 32
+    add rdx, 32
+    sub r8, 8                ; Zmniejsz licznik
+
+    cmp r8, 8
+    jge Vector_Loop          ; Jeœli zosta³o >= 8, powtórz
+
+    ; --- REDUKCJA POZIOMA (Horizontal Add) ---
+    ; Teraz w YMM0 mamy [s7, s6, s5, s4, s3, s2, s1, s0]. Trzeba je dodaæ do siebie.
+    
+    ; 1. Dodaj górn¹ po³owê YMM do dolnej (128 bitów)
+    vextractf128 xmm1, ymm0, 1
+    vaddps xmm0, xmm0, xmm1
+    
+    ; 2. Dodaj poziomo (HADDPS) - redukcja do jednej liczby
+    vhaddps xmm0, xmm0, xmm0 ; [s3+s2, s1+s0, ...]
+    vhaddps xmm0, xmm0, xmm0 ; [suma_ca³kowita, ...] 
+    
+    ; Teraz w dolnym float XMM0 mamy sumê wektorow¹.
+
+Scalar_Loop:
+    ; --- PÊTLA SKALARNA (Dla resztek < 8) ---
+    test r8, r8
+    jz Done                  ; Jeœli count == 0, koniec
+
+    vmovss xmm1, dword ptr [rcx] ; Za³aduj 1 float z macierzy
+    vmovss xmm2, dword ptr [rdx] ; Za³aduj 1 float z wektora X
+    
+    vmulss xmm1, xmm1, xmm2      ; Pomnó¿
+    vaddss xmm0, xmm0, xmm1      ; Dodaj do g³ównej sumy (XMM0)
+
+    add rcx, 4
+    add rdx, 4
+    dec r8
+    jmp Scalar_Loop
+
+Done:
+    ; Wynik jest ju¿ w XMM0, gotowy do zwrócenia
+    vzeroupper
+    ret
+
+calculate_dot_product endp
+
+
+
+
+
+
+
+
 END                                      ;
 

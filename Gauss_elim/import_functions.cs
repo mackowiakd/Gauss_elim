@@ -28,6 +28,9 @@ namespace Gauss_elim.NativeMethods{
         [DllImport(AsmPath, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern float gauss_elimination(float* rowN, float* rowNext, float pivElim, float abs_pivot);
 
+        [DllImport(AsmPath, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern float calculate_dot_product(float* rowPtr, float* xPtr, int count);
+
         // --- IMPORTY Z C++ (używamy stałej CppPath) ---
 
 
