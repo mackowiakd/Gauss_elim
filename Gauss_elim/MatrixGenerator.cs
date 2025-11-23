@@ -92,8 +92,7 @@ namespace Gauss_elim.testing
 
 
     public class tests { 
-        string file_asm ;
-        string file_cpp ;
+      
         float min;
         float max;
         ParallelExecutor P_exe = new ParallelExecutor();
@@ -119,14 +118,16 @@ namespace Gauss_elim.testing
                     string file_inpt = Path.Combine(baseDir, $"matrix{size}x{size}.txt");
                     string file_outp_asm = Path.Combine(resultDir, $"asm_{size}x{size}.txt");
                     string file_outp_cpp = Path.Combine(resultDir, $"cpp_{size}x{size}.txt");
-                    generator.GenerateMatrix(size, file_inpt); //zeby nie mial tego samego pliku bo potem czas ~0ms
+                    string file_resAsm = Path.Combine(resultDir, $"res_asm{size}x{size}.txt");
+                    string file_resCpp = Path.Combine(resultDir, $"res_cpp{size}x{size}.txt");
+                generator.GenerateMatrix(size, file_inpt); //zeby nie mial tego samego pliku bo potem czas ~0ms
 
 
-                for (int threads = 1; threads <= 64; threads *= 2) {
+                    for (int threads = 1; threads <= 64; threads *= 2) {
                       
-                        logger.LogResult(size, threads: threads, mode: "ASM", elapsedMs: P_exe.run_asm(file_inpt, threads, file_outp_asm) );
-                        logger.LogResult(size, threads: threads, mode: "CPP", elapsedMs: P_exe.run_cpp(file_inpt, threads, file_outp_cpp));
-                    }
+                            logger.LogResult(size, threads: threads, mode: "ASM", elapsedMs: P_exe.run_asm(file_inpt, threads, file_outp_asm, file_resAsm) );
+                            logger.LogResult(size, threads: threads, mode: "CPP", elapsedMs: P_exe.run_cpp(file_inpt, threads, file_outp_cpp, file_resCpp));
+                        }
             }
         }
 

@@ -90,7 +90,7 @@ gauss_elimination endp;
 ;===============================================
 
 
-.code
+
 
 ; float calculate_dot_product(float* rowPtr, float* xPtr, int count)
 ; RCX = rowPtr

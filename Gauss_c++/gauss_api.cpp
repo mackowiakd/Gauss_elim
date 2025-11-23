@@ -53,13 +53,14 @@ extern "C" {
        
         ptr->GaussEliminationStep(pivotRow, y);
     
-
     }
-
-
     __declspec(dllexport)
         void save_matrix(MatrixHandler_cpp* ptr, const char* path) {
         ptr->SaveMatrixToFile(path);
+    }
+    __declspec(dllexport)
+        void save_result(MatrixHandler_cpp* ptr, const char* path) {
+        ptr->SaveSlnMtrx(path);
     }
 
 };

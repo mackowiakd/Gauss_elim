@@ -25,8 +25,8 @@ namespace Gauss_elim
         {
        
             //string mode = "release"; //"debug"; //
-            float min = -900.42f;
-            float max =888.89f;
+            float min = -120.42f;
+            float max =50.00f;
             int size = 7;
             // tests t = new tests(min ,max);
             // t.run_tests(mode);
@@ -37,10 +37,11 @@ namespace Gauss_elim
             generator.GenerateMatrix(size, file_inpt);
 
             ////testy 1 watkowo 
-            //MatrixHandler asm_1thread_mtrx = new MatrixHandler(file_inpt);
-            //asm_1thread_mtrx.checkSize();
-            //asm_1thread_mtrx.GaussEliminationManaged();
-            //asm_1thread_mtrx.SaveMatrixToFile(Path.Combine(baseDir, $"result_managed_{size}x{size}_1thread.txt"));
+            MatrixHandler asm_1thread_mtrx = new MatrixHandler(file_inpt);
+            asm_1thread_mtrx.checkSize();
+            asm_1thread_mtrx.GaussEliminationManaged();
+            asm_1thread_mtrx.SaveMatrixToFile(Path.Combine(baseDir, $"result_asm_1T_{size}x{size}_1thread.txt"));
+            asm_1thread_mtrx.SaveSlnMtrx(Path.Combine(baseDir, $"solution_asm1T{size}x{size}_1thread.txt"));
 
             //testy 1 watkowa cpp z bckw substitution
             NativeMethods.import_func.start_gauss(file_inpt, Path.Combine(baseDir, $"CPP_{size}x{size}_SingT.txt"), Path.Combine(baseDir, $"CPP_sln{size}x{size}_SingT.txt"));

@@ -1,2 +1,3 @@
 LIBRARY JAAsm 
 EXPORTS gauss_elimination
+		calculate_dot_product

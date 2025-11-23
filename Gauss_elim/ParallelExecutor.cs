@@ -22,10 +22,10 @@ namespace Gauss_elim.threading
 
 
         }
-        public long run_asm(string input1, int thread_count, string outp)
+        public long run_asm(string input1, int thread_count, string outp, string res)
         {
             Stopwatch sw = Stopwatch.StartNew();
-            asm_parallel matrixAsm = new asm_parallel(input1, thread_count, outp);
+            asm_parallel matrixAsm = new asm_parallel(input1, thread_count, outp, res);
             matrixAsm.Gauss_parallel();
             sw.Stop();
             matrixAsm.Dispose();
@@ -34,7 +34,7 @@ namespace Gauss_elim.threading
             //Console.WriteLine($"Czas wykonania równoległej eliminacji Gaussa (ASM): {sw.ElapsedMilliseconds} ms");
 
         }
-        public long run_cpp(string input1, int thread_count, string outp) {
+        public long run_cpp(string input1, int thread_count, string outp, string res) {
             Stopwatch sw = Stopwatch.StartNew();
             Matrix_Cpp_Parallel matrixCpp = new Matrix_Cpp_Parallel(input1, thread_count, outp);
             matrixCpp.Gauss_parallel();
@@ -51,12 +51,14 @@ namespace Gauss_elim.threading
         MatrixHandler_ASM.MatrixHandler matrix;
         int threadCount;
         string file_outp;
-        public asm_parallel(string path, int thread_count, string outp)
+        string file_out_res;
+        public asm_parallel(string path, int thread_count, string outp, string file_out_res)
         {
           
             matrix = new MatrixHandler_ASM.MatrixHandler(path);
             this.threadCount = thread_count;
             this.file_outp = outp;
+            this.file_out_res = file_out_res;
         }
         public void Gauss_parallel()
         {
@@ -90,6 +92,7 @@ namespace Gauss_elim.threading
         public void Dispose()
         {
             matrix.SaveMatrixToFile(file_outp);
+            matrix.SaveSlnMtrx(file_out_res);
         }
     }
 
@@ -136,14 +139,12 @@ namespace Gauss_elim.threading
           
 
         }
-        public void Gauss_singleT()
-        {
-
-        }
+      
 
         public void Dispose()
         {
             NativeMethods.import_func.save_matrix(matrixPtr, file_outp); //z tym czy bez tego i tak printuje
+            NativeMethods.import_func.save_result(matrixPtr, file_outp);
             if (matrixPtr != IntPtr.Zero)
             {
                 NativeMethods.import_func.destroy_matrix(matrixPtr);

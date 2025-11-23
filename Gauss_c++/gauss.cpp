@@ -195,7 +195,6 @@ void MatrixHandler_cpp::GaussEliminationStep(int pivotRow, int y) {
             // Pobieramy wyraz wolny b_i. 
            
             float b_i = data[i * cols + (cols - 1)];
-
             // Pobieramy pivot (element na przek¹tnej)
             float pivot = data[i * cols + i];
 

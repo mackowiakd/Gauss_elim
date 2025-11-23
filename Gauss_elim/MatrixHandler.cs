@@ -16,6 +16,7 @@ namespace Gauss_elim.MatrixHandler_ASM
         public int rows { get; private set; }
         public int cols { get; private set; }
         public float[] data { get; private set; }
+        public float[] slnVector { get; private set; }
 
         int ymm = 8; // liczba wierszy przetwarzanych jednocześnie przez YMM
 
@@ -60,9 +61,9 @@ namespace Gauss_elim.MatrixHandler_ASM
         
 
 
-        public void SaveMatrixToFile(string path)
+        public void SaveMatrixToFile(string output)
         {
-            using (StreamWriter writer = new StreamWriter(path, false, Encoding.UTF8))
+            using (StreamWriter writer = new StreamWriter(output, false, Encoding.UTF8))
             {
                 for (int r = 0; r < rows; r++)
                 {
@@ -76,6 +77,25 @@ namespace Gauss_elim.MatrixHandler_ASM
                     }
                     writer.WriteLine(line);
                 }
+            }
+            Console.WriteLine("Plik zapisano w: " + Path.GetFullPath(output));
+
+        }
+        public void SaveSlnMtrx(string path)
+        {
+            using (StreamWriter writer = new StreamWriter(path, false, Encoding.UTF8))
+            {
+               
+                string line = "";
+                for (int r = 0; r < rows; r++)
+                {
+                    // dopisujemy element z kropką jako separatorem dziesiętnym
+                    line += slnVector[r].ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    line += " "; // separator między kolumnami
+
+                }
+                writer.WriteLine(line);
+                
             }
             Console.WriteLine("Plik zapisano w: " + Path.GetFullPath(path));
 
@@ -227,12 +247,12 @@ namespace Gauss_elim.MatrixHandler_ASM
 
 
                             {
-                                //zamiast 3 agr int -> array size 3 (r8 w asm)
+                              
                                 //if pivot ==0 => all row can be skiped
                                 if (pivot != 0)
                                 {
                                     NativeMethods.import_func.gauss_elimination(rowN, rowNext, factor, Math.Abs(pivot));
-                                    //ZeroUntilEps((n + 1) * cols + x, pivot); -> In ASM
+                                   
                                 }
 
                             }
@@ -241,13 +261,14 @@ namespace Gauss_elim.MatrixHandler_ASM
 
                     
                 }
+                BackSubstitution();
             }
 
         }
         public void BackSubstitution()
         {
             // slnVector to tablica na wyniki 'x' (rozmiar N)
-            float[] slnVector = new float[rows];
+            slnVector = new float[rows];
 
             unsafe
             {
@@ -287,7 +308,7 @@ namespace Gauss_elim.MatrixHandler_ASM
                     }
                 }
             }
-            // Tutaj masz gotowy slnVector z wynikami!
+            
         }
         public void PrintMatrix()
         {
