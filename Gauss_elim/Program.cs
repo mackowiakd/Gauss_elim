@@ -27,7 +27,7 @@ namespace Gauss_elim
             //string mode = "release"; //"debug"; //
             float min = -12.25f;
             float max =128.00f;
-            int size = 4;
+            int size = 6;
             // tests t = new tests(min ,max);
             // t.run_tests(mode);
             MatrixGenerator generator = new MatrixGenerator(min, max);
@@ -44,11 +44,11 @@ namespace Gauss_elim
             asm_1thread_mtrx.SaveSlnMtrx(Path.Combine(baseDir, $"solution_asm1T{size}x{size}_1thread.txt"));
 
             //testy 1 watkowa cpp z bckw substitution
-            NativeMethods.import_func.start_gauss(file_inpt, Path.Combine(baseDir, $"CPP_{size}x{size}_SingT.txt"), Path.Combine(baseDir, $"CPP_sln{size}x{size}_SingT.txt"));
-           
+            NativeMethods.import_func.start_gauss(file_inpt, Path.Combine(baseDir, $"CPP_{size}x{size}_SingT.txt"), Path.Combine(baseDir, $"sln_cpp{size}x{size}_SingT.txt"));
+
             //wielotkowa wersja asm
-            //ParallelExecutor P_exe = new ParallelExecutor();
-            //P_exe.run_asm(file_inpt, 2, Path.Combine(baseDir, $"result_asm_{size}x{size}_4threads.txt"));
+            ParallelExecutor P_exe = new ParallelExecutor();
+            P_exe.run_asm(file_inpt, 2, Path.Combine(baseDir, $"result_asm_{size}x{size}_4threads.txt"), Path.Combine(baseDir, $"sln_asm_{size}x{size}_4threads.txt"));
 
 
 

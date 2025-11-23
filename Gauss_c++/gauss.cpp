@@ -133,7 +133,7 @@ void MatrixHandler_cpp:: GaussElimination() {
 		//threads.join_all();
 		 
          ZeroUntilEps(y, y);
-         print_matrix();
+        
         
     }
 
