@@ -25,9 +25,9 @@ namespace Gauss_elim
         {
        
             //string mode = "release"; //"debug"; //
-            float min = -120.42f;
-            float max =50.00f;
-            int size = 7;
+            float min = -12.25f;
+            float max =128.00f;
+            int size = 4;
             // tests t = new tests(min ,max);
             // t.run_tests(mode);
             MatrixGenerator generator = new MatrixGenerator(min, max);

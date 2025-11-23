@@ -65,10 +65,10 @@ namespace Gauss_elim.MatrixHandler_ASM
         {
             using (StreamWriter writer = new StreamWriter(output, false, Encoding.UTF8))
             {
-                for (int r = 0; r < rows; r++)
+                for (int r = rowOffset-1; r < rows; r++)
                 {
                     string line = "";
-                    for (int c = 0; c < cols; c++)
+                    for (int c = colOffset; c < cols; c++)
                     {
                         // dopisujemy element z kropką jako separatorem dziesiętnym
                         line += data[r * cols + c].ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -119,13 +119,13 @@ namespace Gauss_elim.MatrixHandler_ASM
             else if (cols > ymm && cols % ymm != 0)
             {
                 newCols = (int)Math.Ceiling((double)cols / ymm) * ymm;
-                newRows = newCols-1;
+                newRows = newCols+1;
             }
 
             float[] newData = new float[newCols * newCols];
 
             rowOffset = newRows - rows;
-            colOffset = rowOffset;
+            colOffset =newCols- cols;
 
             unsafe
             {
@@ -144,7 +144,7 @@ namespace Gauss_elim.MatrixHandler_ASM
             data = newData;
             cols = newCols;
             rows = newRows;
-
+           
         }
 
 
@@ -276,12 +276,12 @@ namespace Gauss_elim.MatrixHandler_ASM
                 fixed (float* slnPtr = slnVector)
                 {
                     // Pętla od ostatniego wiersza w górę
-                    for (int i = rows - 1; i >= 0; i--)
+                    for (int i = rows -1; i >= rowOffset; i--)
                     {
                         // 1. Przygotuj dane dla ASM
                         // Chcemy sumować elementy od kolumny (i + 1) do końca
                         int startCol = i + 1;
-                        int count = rows - startCol; // Ile liczb przemnożyć
+                        int count = rows - (startCol ); // Ile liczb przemnożyć
 
                         float sum = 0.0f;
 
