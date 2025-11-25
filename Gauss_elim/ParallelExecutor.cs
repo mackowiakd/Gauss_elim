@@ -12,7 +12,7 @@ namespace Gauss_elim.threading
     {
         int maxThreads = Environment.ProcessorCount;
         public long elapsedTime { get; set; }
-
+        
         /* 
          * fukcja bedzie wywolywac rownolege eliminacje gaussa dla CPP lub ASM
          */
@@ -48,7 +48,7 @@ namespace Gauss_elim.threading
 
     public class asm_parallel
     {
-        MatrixHandler_ASM.MatrixHandler matrix;
+        public MatrixHandler_ASM.MatrixHandler matrix { get; private set; }
         int threadCount;
         string file_outp;
         string file_out_res;
@@ -67,13 +67,10 @@ namespace Gauss_elim.threading
             for (int y = 0; y < matrix.rows - 1; y++)
             {
                
-                float pivot = matrix.data[y * matrix.cols + (y)];
-
-                if (Math.Abs(pivot) > 1.0e-6f) // Sprawdź, czy pivot NIE JEST zerem w wyniku checkSize
-                {
                     
-                    matrix.ApplyPivot(y);
-
+                matrix.ApplyPivot(y);
+                float pivot = matrix.data[y * matrix.cols + (y)];
+                if (Math.Abs(pivot) > 1.0e-6f){ // Sprawdź, czy pivot NIE JEST zerem w wyniku checkSize
 
                     Parallel.For(y, matrix.rows - 1, new ParallelOptions { MaxDegreeOfParallelism = threadCount }, row_elim =>
                     {
@@ -84,6 +81,7 @@ namespace Gauss_elim.threading
                 }
 
             }
+            matrix.BackSubstitution();
 
             
 
@@ -102,7 +100,7 @@ namespace Gauss_elim.threading
     {
         //operje na wskazniku do macierzy w cpp
         //wywoluje eliminacje gaussa wielowatkowo
-        public IntPtr matrixPtr;
+        public IntPtr matrixPtr { get; private set; }
         public int rows;
         public int cols;
         int threadCount;

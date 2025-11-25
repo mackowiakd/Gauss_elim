@@ -18,8 +18,10 @@ namespace Gauss_elim.MatrixHandler_ASM
         public float[] data { get; private set; }
         public float[] slnVector { get; private set; }
 
-        int ymm = 8; // liczba wierszy przetwarzanych jednocześnie przez YMM
+        public int oldCols;
 
+        int ymm = 8; // liczba wierszy przetwarzanych jednocześnie przez YMM
+      
         public const float eps = 1.0e-5f;
         public const float EPS_ABS = 1e-6f;
         public const float EPS_REL = 1e-4f;
@@ -66,7 +68,7 @@ namespace Gauss_elim.MatrixHandler_ASM
                 for (int r = 0; r < rows; r++)
                 {
                     string line = "";
-                    for (int c = 0; c < rows; c++)
+                    for (int c = 0; c < oldCols; c++)
                     {
                         // dopisujemy element z kropką jako separatorem dziesiętnym
                         line += data[r * cols + c].ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -83,7 +85,7 @@ namespace Gauss_elim.MatrixHandler_ASM
         {
             using (StreamWriter writer = new StreamWriter(path, false, Encoding.UTF8))
             {
-                slnVector = new float[rows];
+               
 
                 string line = "";
                 for (int r = 0; r < rows; r++)
@@ -104,8 +106,7 @@ namespace Gauss_elim.MatrixHandler_ASM
 
         public void checkSize()
         {
-            int newCols = ymm;
-            int newRows = rows; // Możesz zostawić starą liczbę wierszy, to nie przeszkadza AVX
+            oldCols = cols; // zapamiętujemy oryginalną liczbę kolumn
             //rommiar < 8 ??
 
             if (cols != rows +1)
@@ -117,11 +118,11 @@ namespace Gauss_elim.MatrixHandler_ASM
 
             else if (cols > ymm && cols % ymm != 0)
             {
-                newCols = (int)Math.Ceiling((double)cols / ymm) * ymm;
+                cols = (int)Math.Ceiling((double)cols / ymm) * ymm;
                 
             }
 
-            float[] newData = new float[newCols * newRows];
+            float[] newData = new float[cols * rows];
 
             // 4. Skopiuj dane do LEWEGO GÓRNEGO rogu (bez offsetów!)
             unsafe
@@ -133,22 +134,18 @@ namespace Gauss_elim.MatrixHandler_ASM
                     {
                         // Kopiujemy wiersz po wierszu
                         // Źródło: stary wiersz r
-                        float* srcRow = src + (r * cols);
+                        float* srcRow = src + (r * oldCols);
                         // Cel: nowy wiersz r (ale nowa szerokość newCols)
-                        float* dstRow = dst + (r * newCols);
+                        float* dstRow = dst + (r * cols);
 
                         // Kopiujemy tylko tyle bajtów, ile miał stary wiersz
-                        Buffer.MemoryCopy(srcRow, dstRow, cols * sizeof(float), cols * sizeof(float));
+                        Buffer.MemoryCopy(srcRow, dstRow, oldCols * sizeof(float), oldCols * sizeof(float));
                     }
                 }
             }
-
-            // 5. Podmień dane
             data = newData;
-            cols = newCols;
-            rows = newRows;
-            // Offsety są teraz równe 0, więc możesz je usunąć z klas
-
+            
+      
         }
 
 
@@ -249,7 +246,7 @@ namespace Gauss_elim.MatrixHandler_ASM
                     for (int x = 0; x < cols; x += ymm)
                     {
 
-                        Console.WriteLine($"[{y},{n}] elim={elim}, pivot={pivot}");
+                        //Console.WriteLine($"[{y},{n}] elim={elim}, pivot={pivot}");
 
                        
                         unsafe
@@ -311,16 +308,28 @@ namespace Gauss_elim.MatrixHandler_ASM
 
                             // WOŁAMY ASM: "Policz iloczyn skalarny tych fragmentów"
                             sum = NativeMethods.import_func.calculate_dot_product(rowSegment, slnSegment, count);
+
+                            //float sumCs = 0;
+                            //for (int k = 0; k < count; k++)
+                            //{
+                            //    sumCs += rowSegment[k] * slnSegment[k];
+                            //}
+                            //sum = sumCs;
                         }
+                      
+
 
                         // 2. Dokończ obliczenia w C# (to jest szybkie, bo tylko raz na wiersz)
                         float b_i = mtrxPtr[i * cols + rows]; // Wyraz wolny (ostatnia kolumna)
                         float pivot = mtrxPtr[i * cols + i];        // Pivot
 
+                        
+
                         if (Math.Abs(pivot) > 1e-9f)
                             slnVector[i] = (b_i - sum) / pivot;
                         else
                             slnVector[i] = 0; // Zabezpieczenie
+                        System.Console.WriteLine($"slnVector[{i}] = {slnVector[i]}");
                     }
                 }
             }

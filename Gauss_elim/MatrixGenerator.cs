@@ -11,25 +11,38 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Gauss_elim.testing
 {
-    public class MatrixGenerator{
-        public int size { get;  set; }
-        public float min { get;  set; }
-        public float max { get;  set; }
-      
-        
+    public class MatrixGenerator
+    {
+        public int size { get; set; }
+        public float min { get; set; }
+        public float max { get; set; }
+        public string solutionPath;
 
-        public MatrixGenerator( float min, float max)
+
+
+
+        public MatrixGenerator(float min, float max)
         {
-            this.min = min; 
+            this.min = min;
             this.max = max;
-      
-
           
+          
+
         }
 
-       
+
         public void GenerateMatrix(int size, string file)
         {
+            // 1. Pobierz katalog, w którym ma być plik
+            string directory = Path.GetDirectoryName(file);
+
+            // 2. Pobierz samą nazwę pliku BEZ rozszerzenia (np. "matrix250x250")
+            string fileNameNoExt = Path.GetFileNameWithoutExtension(file);
+
+            // 3. Zbuduj nową ścieżkę z dopiskiem "_sol.txt"
+            // Wynik: C:\...\matrix250x250_sol.txt
+            this.solutionPath = Path.Combine(directory, fileNameNoExt + "_sol.txt");
+
             Random rand = new Random();
 
             // KROK 1: Wylosuj "tajny" wynik X (na liczbach całkowitych)
@@ -39,20 +52,12 @@ namespace Gauss_elim.testing
             {
                 secretX[i] = rand.Next(-10, 11);
             }
-            // 1. Pobierz katalog, w którym ma być plik
-            string directory = Path.GetDirectoryName(file);
 
-            // 2. Pobierz samą nazwę pliku BEZ rozszerzenia (np. "matrix250x250")
-            string fileNameNoExt = Path.GetFileNameWithoutExtension(file);
-
-            // 3. Zbuduj nową ścieżkę z dopiskiem "_sol.txt"
-            // Wynik: C:\...\matrix250x250_sol.txt
-            string solutionPath = Path.Combine(directory, fileNameNoExt + "_sol.txt");
 
             // 4. Zapisz plik
             File.WriteAllText(solutionPath, string.Join(" ", secretX.Select(f => f.ToString(CultureInfo.InvariantCulture))));
 
-           
+
 
             // KROK 2: Generuj macierz A i wyliczaj pasujące b
             using (StreamWriter writer = new StreamWriter(file))
@@ -87,7 +92,97 @@ namespace Gauss_elim.testing
         }
 
 
-    }
+        public bool VerifyResults(string outputFilePath, out string message)
+        {
+
+
+            // --- KROK 1: Wczytanie Twojego obliczonego wyniku z pliku ---
+
+            if (!File.Exists(outputFilePath))
+            {
+                message = "Plik z wynikami nie został utworzony. Coś poszło nie tak z obliczeniami.";
+                return false;
+            }
+
+            float[] calculatedResult;
+            try
+            {
+                string content = File.ReadAllText(outputFilePath);
+
+                // Parsujemy liczby rozdzielone spacjami (lub nowymi liniami/tabami dla pewności)
+                calculatedResult = content.Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                                          .Select(s => float.Parse(s, CultureInfo.InvariantCulture))
+                                          .ToArray();
+            }
+            catch (Exception ex)
+            {
+                message = $"Błąd podczas odczytu pliku wyników: {ex.Message}";
+                return false;
+            }
+
+            // --- KROK 2: Znalezienie i wczytanie pliku wzorcowego (_sol.txt) ---
+
+
+
+            if (!File.Exists(solutionPath))
+            {
+                message = "Nie znaleziono pliku wzorcowego (*_sol.txt). \nWyniki obliczono, ale nie można zweryfikować ich poprawności.";
+                // Zwracamy true, bo sam program zadziałał, tylko testu nie ma z czym porównać
+                return true;
+            }
+
+            float[] expectedResult;
+            try
+            {
+                string content = File.ReadAllText(solutionPath);
+                expectedResult = content.Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                                        .Select(s => float.Parse(s, CultureInfo.InvariantCulture))
+                                        .ToArray();
+            }
+            catch
+            {
+                message = "Błąd odczytu pliku wzorcowego.";
+                return false;
+            }
+
+            // --- KROK 3: Porównanie (Logika bez zmian) ---
+
+            if (calculatedResult.Length != expectedResult.Length)
+            {
+                message = $"BŁĄD WERYFIKACJI: Niezgodność wymiarów!\nObliczono: {calculatedResult.Length} liczb\nOczekiwano: {expectedResult.Length} liczb";
+                return false;
+            }
+
+            float epsilon = 0.05f; // Tolerancja błędu
+            int errorCount = 0;
+            float maxError = 0.0f;
+
+            for (int i = 0; i < calculatedResult.Length; i++)
+            {
+                float diff = Math.Abs(calculatedResult[i] - expectedResult[i]);
+                if (diff > maxError) maxError = diff;
+
+                if (diff > epsilon)
+                {
+                    errorCount++;
+                }
+            }
+
+            if (errorCount > 0)
+            {
+                message = $"WERYFIKACJA: NIEPOWODZENIE ❌\nZnaleziono {errorCount} błędnych wyników.\nMaksymalny błąd: {maxError:F6}";
+                return false;
+            }
+
+            message = $"WERYFIKACJA: SUKCES ✅\nWyniki są poprawne.\nMaksymalne odchylenie: {maxError:F6}";
+            return true;
+
+        }
+
+    
+
+
+};
 
 
 
@@ -97,10 +192,12 @@ namespace Gauss_elim.testing
         float max;
         ParallelExecutor P_exe = new ParallelExecutor();
         MatrixGenerator generator;
-        public tests(float min, float max)
+        string file;
+        public tests(float min, float max, string file)
         {
             this.min = min;
             this.max = max;
+            
             generator = new MatrixGenerator(min, max);
           
 
@@ -131,66 +228,102 @@ namespace Gauss_elim.testing
             }
         }
 
-
-        private bool VerifyResults(string matrixPath, float[] actualResult)
+        public void back_sub_test(string tests_name)
         {
-            string solutionPath = matrixPath + ".sol";
+          
+            int threads = 4;
+            string message;
+            bool isCorrect;
+            string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sln_test");
+            string resultDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"test_asser{tests_name}");
+            Directory.CreateDirectory(baseDir); // upewnia się, że katalog istnieje
+            Directory.CreateDirectory(resultDir);
 
-            // 1. Sprawdź czy plik z rozwiązaniem istnieje
-            if (!File.Exists(solutionPath))
+            // Konfiguracja
+            int minSize = 70;
+            int maxSize = 200; // Nie za duże, żeby dało się czytać logi
+            int totalTests = 20; // Max 20 testów
+
+            List<int> sizesToTest = new List<int>();
+            Random rand = new Random();
+
+            // KROK 1: Dodaj "złośliwe" przypadki brzegowe (Gwarancja różnego Modulo 8)
+            // Chcemy mieć pewność, że przetestujemy rozmiar, który daje resztę 0, 1, 2... 7
+            for (int remainder = 0; remainder < 8; remainder++)
             {
-                MessageBox.Show("Nie znaleziono pliku z poprawnym wynikiem (.sol). Nie można zweryfikować.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return false;
+                // Losujemy jakąś bazę (np. 16, 24, 40...) i dodajemy resztę
+                int baseNum = rand.Next(1, 10) * 8;
+                sizesToTest.Add(baseNum + remainder);
             }
 
-            try
+            // KROK 2: Dodaj konkretne małe wartości, gdzie błędy są najczęstsze
+            sizesToTest.AddRange(new int[] { 3, 7, 8, 9, 15, 16, 17, 60, 50 });
+
+            // KROK 3: Dopełnij losowymi wartościami do limitu (np. 20)
+            while (sizesToTest.Count < totalTests)
             {
-                // 2. Wczytaj oczekiwane wyniki
-                string content = File.ReadAllText(solutionPath);
-                float[] expectedResult = content.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
-                                                .Select(s => float.Parse(s, System.Globalization.CultureInfo.InvariantCulture))
-                                                .ToArray();
-
-                // 3. Sprawdź długość
-                if (actualResult.Length != expectedResult.Length)
-                {
-                    MessageBox.Show($"Niezgodność rozmiarów! Otrzymano {actualResult.Length}, oczekiwano {expectedResult.Length}.", "Błąd Weryfikacji", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return false;
-                }
-
-                // 4. Porównaj każdy element z tolerancją błędu
-                float epsilon = 0.05f; // Dość luźna tolerancja dla dużych macierzy float
-                int errorCount = 0;
-
-                for (int i = 0; i < actualResult.Length; i++)
-                {
-                    float diff = Math.Abs(actualResult[i] - expectedResult[i]);
-
-                    // Jeśli różnica jest zbyt duża
-                    if (diff > epsilon)
-                    {
-                        // Dla celów debugowania możesz wypisać pierwszy błąd
-                        if (errorCount == 0)
-                            Console.WriteLine($"Błąd w indeksie {i}: Oczekiwano {expectedResult[i]}, jest {actualResult[i]}");
-
-                        errorCount++;
-                    }
-                }
-
-                if (errorCount > 0)
-                {
-                    MessageBox.Show($"Weryfikacja NIEPOWODZENIE. Znaleziono {errorCount} błędnych wyników.", "Wynik testu", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return false;
-                }
-
-                return true; // Wszystko OK
+                sizesToTest.Add(rand.Next(minSize, maxSize));
             }
-            catch (Exception ex)
+
+            // KROK 4: Posortuj i usuń duplikaty
+            // (Distinct jest ważny, żeby nie testować 8 dwa razy)
+            sizesToTest = sizesToTest.Distinct().OrderBy(x => x).ToList();
+
+            // --- PĘTLA TESTOWA ---
+            Console.WriteLine($"Rozpoczynam testy dla {sizesToTest.Count} różnych rozmiarów...");
+
+            foreach (int size in sizesToTest)
             {
-                MessageBox.Show($"Błąd podczas weryfikacji: {ex.Message}");
-                return false;
+                string file_inpt = Path.Combine(baseDir, $"matrix{size}x{size}.txt");
+                generator.GenerateMatrix(size, file_inpt);
+                string file_outp_asm = Path.Combine(resultDir, $"asm_{size}x{size}.txt");
+                string file_outp_cpp = Path.Combine(resultDir, $"cpp_{size}x{size}.txt");
+                string file_resAsm = Path.Combine(resultDir, $"res_asm{size}x{size}.txt");
+                string file_resCpp = Path.Combine(resultDir, $"res_cpp{size}x{size}.txt");
+
+                ////__CPP__
+                //P_exe.run_cpp(file_inpt, threads, file_outp_cpp, file_resCpp);
+                //isCorrect   = generator.VerifyResults(file_resCpp,out message);
+                //// 3. Wypisz zwrócony komunikat w konsoli
+                //Console.WriteLine(message);
+
+                //// 4. (Opcjonalnie) Możesz też zareagować na wynik bool
+                //if (isCorrect)
+                //{
+                //    Console.ForegroundColor = ConsoleColor.Green;
+                //    Console.WriteLine("Test zaliczony!");
+                //}
+                //else
+                //{
+                //    Console.ForegroundColor = ConsoleColor.Red;
+                //    Console.WriteLine("Test niezaliczony.");
+                //}
+                //Console.ResetColor();
+
+                //__ASM_
+                P_exe.run_asm(file_inpt, threads, file_outp_asm, file_resAsm);
+                isCorrect = generator.VerifyResults(file_resAsm, out message);
+
+                Console.WriteLine(message);
+
+                // 4. (Opcjonalnie) Możesz też zareagować na wynik bool
+                if (isCorrect)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Test zaliczony!");
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Test niezaliczony.");
+                }
+                Console.ResetColor();
+
             }
         }
+
+
+        
 
     }
 

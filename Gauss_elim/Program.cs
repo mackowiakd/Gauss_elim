@@ -27,28 +27,30 @@ namespace Gauss_elim
             //string mode = "release"; //"debug"; //
             float min = -12.25f;
             float max =128.00f;
-            int size = 6;
-            // tests t = new tests(min ,max);
+            //int size = 9; // rozmiar macierzy kwadratowej
+
+            tests t = new tests(min, max, "testy_wyrazow_wolnych");
+            t.back_sub_test("SLN");
             // t.run_tests(mode);
-            MatrixGenerator generator = new MatrixGenerator(min, max);
-            string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"macierz_rozszerz");
-            Directory.CreateDirectory(baseDir); // upewnia się, że katalog istnieje
-            string file_inpt = Path.Combine(baseDir, $"matrix{size}x{size}.txt");
-            generator.GenerateMatrix(size, file_inpt);
+            //string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"macierz_rozszerz");
+            //Directory.CreateDirectory(baseDir); // upewnia się, że katalog istnieje
+            //string file_inpt = Path.Combine(baseDir, $"matrix{size}x{size}.txt");
+            //MatrixGenerator generator = new MatrixGenerator(min, max);
+            //generator.GenerateMatrix(size, file_inpt);
 
-            ////testy 1 watkowo 
-            MatrixHandler asm_1thread_mtrx = new MatrixHandler(file_inpt);
-            asm_1thread_mtrx.checkSize();
-            asm_1thread_mtrx.GaussEliminationManaged();
-            asm_1thread_mtrx.SaveMatrixToFile(Path.Combine(baseDir, $"result_asm_1T_{size}x{size}_1thread.txt"));
-            asm_1thread_mtrx.SaveSlnMtrx(Path.Combine(baseDir, $"solution_asm1T{size}x{size}_1thread.txt"));
+            //////testy 1 watkowo 
+            //MatrixHandler asm_1thread_mtrx = new MatrixHandler(file_inpt);
+            //asm_1thread_mtrx.checkSize();
+            //asm_1thread_mtrx.GaussEliminationManaged();
+            //asm_1thread_mtrx.SaveMatrixToFile(Path.Combine(baseDir, $"out_asm_managed_{size}x{size}_1thread.txt"));
+            //asm_1thread_mtrx.SaveSlnMtrx(Path.Combine(baseDir, $"solution_asm_managed{size}x{size}_1thread.txt"));
 
-            //testy 1 watkowa cpp z bckw substitution
-            NativeMethods.import_func.start_gauss(file_inpt, Path.Combine(baseDir, $"CPP_{size}x{size}_SingT.txt"), Path.Combine(baseDir, $"sln_cpp{size}x{size}_SingT.txt"));
+            ////testy 1 watkowa cpp z bckw substitution
+            //NativeMethods.import_func.start_gauss(file_inpt, Path.Combine(baseDir, $"CPP_{size}x{size}_SingT.txt"), Path.Combine(baseDir, $"sln_cpp{size}x{size}_SingT.txt"));
 
-            //wielotkowa wersja asm
-            ParallelExecutor P_exe = new ParallelExecutor();
-            P_exe.run_asm(file_inpt, 2, Path.Combine(baseDir, $"result_asm_{size}x{size}_4threads.txt"), Path.Combine(baseDir, $"sln_asm_{size}x{size}_4threads.txt"));
+            ////wielotkowa wersja asm
+            //ParallelExecutor P_exe = new ParallelExecutor();
+            //P_exe.run_asm(file_inpt, 2, Path.Combine(baseDir, $"result_asm_{size}x{size}_4threads.txt"), Path.Combine(baseDir, $"sln_asm_{size}x{size}_4threads.txt"));
 
 
 

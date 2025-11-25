@@ -70,11 +70,11 @@ gauss_elimination proc
 
     ; 2. Porównaj: Czy |wynik| < Threshold (YMM5)?
     ; 17 = _CMP_LT_OQ (Less Than)
-    vcmpps ymm6, ymm3, ymm5, 17    ; YMM6 = Maska (111.. jeœli ma³e, 000.. jeœli du¿e)
+    vcmpps ymm0, ymm3, ymm5, 17    ; YMM6 = Maska (111.. jeœli ma³e, 000.. jeœli du¿e)
 
     ; 3. Zerowanie (AND NOT)
     ; Zostawiamy tylko te wartoœci, gdzie maska to 0
-    vandnps ymm1, ymm6, ymm1       ; Zeruje ma³e liczby, resztê zostawia
+    vandnps ymm1, ymm0, ymm1       ; Zeruje ma³e liczby, resztê zostawia
 
     ; ---------------------------------------------------------
     ; KROK E: Zapis
