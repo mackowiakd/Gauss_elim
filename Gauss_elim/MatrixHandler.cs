@@ -61,7 +61,7 @@ namespace Gauss_elim.MatrixHandler_ASM
         
 
 
-        public void SaveMatrixToFile(string output)
+        public unsafe void SaveMatrixToFile(string output)
         {
             using (StreamWriter writer = new StreamWriter(output, false, Encoding.UTF8))
             {
@@ -71,8 +71,8 @@ namespace Gauss_elim.MatrixHandler_ASM
                     for (int c = 0; c < oldCols; c++)
                     {
                         // dopisujemy element z kropką jako separatorem dziesiętnym
-                        line += data[r * cols + c].ToString(System.Globalization.CultureInfo.InvariantCulture);
-                        if (c < cols - 1)
+                        line += data[r * cols + c].ToString();
+                        if (c < oldCols - 1)
                             line += " "; // separator między kolumnami
                     }
                     writer.WriteLine(line);
@@ -91,7 +91,7 @@ namespace Gauss_elim.MatrixHandler_ASM
                 for (int r = 0; r < rows; r++)
                 {
                     // dopisujemy element z kropką jako separatorem dziesiętnym
-                    line += slnVector[r].ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    line += slnVector[r].ToString();
                     line += " "; // separator między kolumnami
 
                 }
@@ -139,7 +139,7 @@ namespace Gauss_elim.MatrixHandler_ASM
                         float* dstRow = dst + (r * cols);
 
                         // Kopiujemy tylko tyle bajtów, ile miał stary wiersz
-                        Buffer.MemoryCopy(srcRow, dstRow, oldCols * sizeof(float), oldCols * sizeof(float));
+                        Buffer.MemoryCopy(srcRow, dstRow, cols * sizeof(float), oldCols * sizeof(float));
                     }
                 }
             }
@@ -180,7 +180,7 @@ namespace Gauss_elim.MatrixHandler_ASM
             {
                 // Zamieniamy CAŁY wiersz (aż do newCols, łącznie z paddingiem z prawej)
                 // To jest bezpieczne i szybkie (AVX lubi pełne wiersze)
-                for (int j = 0; j < cols; j++)
+                for (int j = 0; j < oldCols; j++)
                 {
                     float tmp = data[currentCol * cols + j];
                     data[currentCol * cols + j] = data[pivotRow * cols + j];
@@ -329,7 +329,7 @@ namespace Gauss_elim.MatrixHandler_ASM
                             slnVector[i] = (b_i - sum) / pivot;
                         else
                             slnVector[i] = 0; // Zabezpieczenie
-                        System.Console.WriteLine($"slnVector[{i}] = {slnVector[i]}");
+                      
                     }
                 }
             }

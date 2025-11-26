@@ -247,7 +247,7 @@ namespace Gauss_elim.testing
             List<int> sizesToTest = new List<int>();
             Random rand = new Random();
 
-            // KROK 1: Dodaj "złośliwe" przypadki brzegowe (Gwarancja różnego Modulo 8)
+            //// KROK 1: Dodaj "złośliwe" przypadki brzegowe (Gwarancja różnego Modulo 8)
             // Chcemy mieć pewność, że przetestujemy rozmiar, który daje resztę 0, 1, 2... 7
             for (int remainder = 0; remainder < 8; remainder++)
             {
@@ -257,7 +257,28 @@ namespace Gauss_elim.testing
             }
 
             // KROK 2: Dodaj konkretne małe wartości, gdzie błędy są najczęstsze
-            sizesToTest.AddRange(new int[] { 3, 7, 8, 9, 15, 16, 17, 60, 50 });
+            sizesToTest.AddRange(new int[] { 3, 7, 8, 9, 15, 16, 17, 48, 50 });
+
+            sizesToTest.AddRange(new int[]
+            { 
+            // Małe wartości (sprawdzają ogólną logikę)
+            3, 
+    
+            // Okolice 8 (sprawdzają padding przy małych danych)
+            7, 8, 9, 
+    
+            // Okolice 16 (sprawdzają czy pętla ASM dobrze przechodzi do kolejnego bloku)
+            15, 16, 17, 
+    
+            // Okolice 32 (kolejna granica)
+            31, 32, 33, 
+    
+            // Twoje problematyczne okolice (gdzie wcześniej był błąd)
+            47, 48, 49, 50, 51,
+    
+            // Trochę większe
+            63, 64, 65
+             });
 
             // KROK 3: Dopełnij losowymi wartościami do limitu (np. 20)
             while (sizesToTest.Count < totalTests)
