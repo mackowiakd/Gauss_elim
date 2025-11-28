@@ -29,14 +29,14 @@ namespace Gauss_elim.threading
             matrixAsm.Gauss_parallel();
             sw.Stop();
             matrixAsm.Dispose();
-            return sw.ElapsedMilliseconds;
             //elapsedTime = sw.ElapsedMilliseconds;
+            return sw.ElapsedMilliseconds;
             //Console.WriteLine($"Czas wykonania równoległej eliminacji Gaussa (ASM): {sw.ElapsedMilliseconds} ms");
 
         }
         public long run_cpp(string input1, int thread_count, string outp, string res) {
             Stopwatch sw = Stopwatch.StartNew();
-            Matrix_Cpp_Parallel matrixCpp = new Matrix_Cpp_Parallel(input1, thread_count, outp);
+            Matrix_Cpp_Parallel matrixCpp = new Matrix_Cpp_Parallel(input1, thread_count, outp, res);
             matrixCpp.Gauss_parallel();
             sw.Stop();
             matrixCpp.Dispose();
@@ -51,14 +51,14 @@ namespace Gauss_elim.threading
         public MatrixHandler_ASM.MatrixHandler matrix { get; private set; }
         int threadCount;
         string file_outp;
-        string file_out_res;
+        string file_res;
         public asm_parallel(string path, int thread_count, string outp, string file_out_res)
         {
           
-            matrix = new MatrixHandler_ASM.MatrixHandler(path);
+            this.matrix = new MatrixHandler_ASM.MatrixHandler(path);
             this.threadCount = thread_count;
             this.file_outp = outp;
-            this.file_out_res = file_out_res;
+            this.file_res = file_out_res;
         }
         public void Gauss_parallel()
         {
@@ -90,7 +90,7 @@ namespace Gauss_elim.threading
         public void Dispose()
         {
             matrix.SaveMatrixToFile(file_outp);
-            matrix.SaveSlnMtrx(file_out_res);
+            matrix.SaveSlnMtrx(file_res);
         }
     }
 
@@ -107,13 +107,15 @@ namespace Gauss_elim.threading
         float eps_abs;
         float eps_rel;
         string file_outp;
-        public Matrix_Cpp_Parallel(string input, int thread_count, string outp) {
-            matrixPtr = NativeMethods.import_func.create_matrix(input);
-            rows = NativeMethods.import_func.get_rows(matrixPtr);
-            cols = NativeMethods.import_func.get_cols(matrixPtr);
-            eps_abs = NativeMethods.import_func.get_eps_abs(matrixPtr);
+        string file_res;
+        public Matrix_Cpp_Parallel(string input, int thread_count, string outp, string file_res) {
+            this.matrixPtr = NativeMethods.import_func.create_matrix(input);
+            this.rows = NativeMethods.import_func.get_rows(matrixPtr);
+            this.cols = NativeMethods.import_func.get_cols(matrixPtr);
+            this.eps_abs = NativeMethods.import_func.get_eps_abs(matrixPtr);
             eps_rel = NativeMethods.import_func.get_eps_rel(matrixPtr);
-            file_outp = outp;
+            this.file_outp = outp;
+            this.file_res = file_res;
 
             this.threadCount = thread_count;
         }
@@ -134,7 +136,7 @@ namespace Gauss_elim.threading
                 // ptr->ZeroUntilEps(y, y);
                 NativeMethods.import_func.zero_until_eps(matrixPtr, y, y);
             }
-          
+          NativeMethods.import_func.back_substitution(matrixPtr);
 
         }
       
@@ -142,7 +144,7 @@ namespace Gauss_elim.threading
         public void Dispose()
         {
             NativeMethods.import_func.save_matrix(matrixPtr, file_outp); //z tym czy bez tego i tak printuje
-            NativeMethods.import_func.save_result(matrixPtr, file_outp);
+            NativeMethods.import_func.save_result(matrixPtr, file_res);
             if (matrixPtr != IntPtr.Zero)
             {
                 NativeMethods.import_func.destroy_matrix(matrixPtr);

@@ -25,13 +25,14 @@ namespace Gauss_elim
         {
        
             //string mode = "release"; //"debug"; //
-            float min = -12.25f;
-            float max =128.00f;
-            //int size = 9; // rozmiar macierzy kwadratowej
+            float min = -137.25f;
+            float max =55.00f;
+            string mode = "debug";
 
-            tests t = new tests(min, max, "testy_wyrazow_wolnych");
-            t.back_sub_test("SLN");
-            // t.run_tests(mode);
+            tests t = new tests(min, max, "testy_debug2.0");
+           // t.back_sub_test("SLN");
+            t.run_tests(mode);
+
             //string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"macierz_rozszerz");
             //Directory.CreateDirectory(baseDir); // upewnia się, że katalog istnieje
             //string file_inpt = Path.Combine(baseDir, $"matrix{size}x{size}.txt");
@@ -59,6 +60,9 @@ namespace Gauss_elim
         }
     }
 }
+
+
+
 
 //pod GUI
 /*

@@ -55,6 +55,10 @@ extern "C" {
     
     }
     __declspec(dllexport)
+        void back_substitution(MatrixHandler_cpp* ptr) {
+        ptr->BackSubstitution();
+	}
+    __declspec(dllexport)
         void save_matrix(MatrixHandler_cpp* ptr, const char* path) {
         ptr->SaveMatrixToFile(path);
     }

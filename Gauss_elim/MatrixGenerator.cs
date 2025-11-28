@@ -213,8 +213,8 @@ namespace Gauss_elim.testing
                 
                 for (int size = 50 ; size <= 2000; size *= 5) {
                     string file_inpt = Path.Combine(baseDir, $"matrix{size}x{size}.txt");
-                    string file_outp_asm = Path.Combine(resultDir, $"asm_{size}x{size}.txt");
-                    string file_outp_cpp = Path.Combine(resultDir, $"cpp_{size}x{size}.txt");
+                    string file_outp_asm = Path.Combine(resultDir, $"asm_outp{size}x{size}.txt");
+                    string file_outp_cpp = Path.Combine(resultDir, $"cpp_outp{size}x{size}.txt");
                     string file_resAsm = Path.Combine(resultDir, $"res_asm{size}x{size}.txt");
                     string file_resCpp = Path.Combine(resultDir, $"res_cpp{size}x{size}.txt");
                 generator.GenerateMatrix(size, file_inpt); //zeby nie mial tego samego pliku bo potem czas ~0ms
@@ -259,27 +259,7 @@ namespace Gauss_elim.testing
             // KROK 2: Dodaj konkretne małe wartości, gdzie błędy są najczęstsze
             sizesToTest.AddRange(new int[] { 3, 7, 8, 9, 15, 16, 17, 48, 50 });
 
-            sizesToTest.AddRange(new int[]
-            { 
-            // Małe wartości (sprawdzają ogólną logikę)
-            3, 
-    
-            // Okolice 8 (sprawdzają padding przy małych danych)
-            7, 8, 9, 
-    
-            // Okolice 16 (sprawdzają czy pętla ASM dobrze przechodzi do kolejnego bloku)
-            15, 16, 17, 
-    
-            // Okolice 32 (kolejna granica)
-            31, 32, 33, 
-    
-            // Twoje problematyczne okolice (gdzie wcześniej był błąd)
-            47, 48, 49, 50, 51,
-    
-            // Trochę większe
-            63, 64, 65
-             });
-
+          
             // KROK 3: Dopełnij losowymi wartościami do limitu (np. 20)
             while (sizesToTest.Count < totalTests)
             {
@@ -296,30 +276,16 @@ namespace Gauss_elim.testing
             foreach (int size in sizesToTest)
             {
                 string file_inpt = Path.Combine(baseDir, $"matrix{size}x{size}.txt");
+
                 generator.GenerateMatrix(size, file_inpt);
+
                 string file_outp_asm = Path.Combine(resultDir, $"asm_{size}x{size}.txt");
-                string file_outp_cpp = Path.Combine(resultDir, $"cpp_{size}x{size}.txt");
                 string file_resAsm = Path.Combine(resultDir, $"res_asm{size}x{size}.txt");
+
+                string file_outp_cpp = Path.Combine(resultDir, $"cpp_{size}x{size}.txt"); 
                 string file_resCpp = Path.Combine(resultDir, $"res_cpp{size}x{size}.txt");
 
-                ////__CPP__
-                //P_exe.run_cpp(file_inpt, threads, file_outp_cpp, file_resCpp);
-                //isCorrect   = generator.VerifyResults(file_resCpp,out message);
-                //// 3. Wypisz zwrócony komunikat w konsoli
-                //Console.WriteLine(message);
-
-                //// 4. (Opcjonalnie) Możesz też zareagować na wynik bool
-                //if (isCorrect)
-                //{
-                //    Console.ForegroundColor = ConsoleColor.Green;
-                //    Console.WriteLine("Test zaliczony!");
-                //}
-                //else
-                //{
-                //    Console.ForegroundColor = ConsoleColor.Red;
-                //    Console.WriteLine("Test niezaliczony.");
-                //}
-                //Console.ResetColor();
+              
 
                 //__ASM_
                 P_exe.run_asm(file_inpt, threads, file_outp_asm, file_resAsm);
@@ -339,6 +305,25 @@ namespace Gauss_elim.testing
                     Console.WriteLine("Test niezaliczony.");
                 }
                 Console.ResetColor();
+
+                //////__CPP__
+                //P_exe.run_cpp(file_inpt, threads, file_outp_cpp, file_resCpp);
+                //isCorrect = generator.VerifyResults(file_resCpp, out message);
+                //// 3. Wypisz zwrócony komunikat w konsoli
+                //Console.WriteLine(message);
+
+                //// 4. (Opcjonalnie) Możesz też zareagować na wynik bool
+                //if (isCorrect)
+                //{
+                //    Console.ForegroundColor = ConsoleColor.Green;
+                //    Console.WriteLine("Test zaliczony!");
+                //}
+                //else
+                //{
+                //    Console.ForegroundColor = ConsoleColor.Red;
+                //    Console.WriteLine("Test niezaliczony.");
+                //}
+                //Console.ResetColor();
 
             }
         }

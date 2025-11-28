@@ -40,6 +40,9 @@ namespace Gauss_elim.NativeMethods{
         public static extern void start_gauss(string input_path, string output_path, string outp_slnVec);
 
         [DllImport(CppPath, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void back_substitution(IntPtr matrixPtr);
+
+        [DllImport(CppPath, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr create_matrix(string inputPath);
 
         [DllImport(CppPath, CallingConvention = CallingConvention.Cdecl)]
