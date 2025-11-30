@@ -92,7 +92,7 @@ namespace Gauss_elim.testing
         }
 
 
-        public bool VerifyResults(string outputFilePath, out string message)
+        public bool VerifyResults(string outputFilePath, out string message,string mode)
         {
 
 
@@ -170,11 +170,11 @@ namespace Gauss_elim.testing
 
             if (errorCount > 0)
             {
-                message = $"WERYFIKACJA: NIEPOWODZENIE ❌\nZnaleziono {errorCount} błędnych wyników.\nMaksymalny błąd: {maxError:F6}";
+                message = $"{mode}\nWERYFIKACJA: NIEPOWODZENIE ❌\nZnaleziono {errorCount} błędnych wyników.\nMaksymalny błąd: {maxError:F6}";
                 return false;
             }
 
-            message = $"WERYFIKACJA: SUKCES ✅\nWyniki są poprawne.\nMaksymalne odchylenie: {maxError:F6}";
+            message = $"{mode}\nWERYFIKACJA: SUKCES ✅\nWyniki są poprawne.\nMaksymalne odchylenie: {maxError:F6}";
             return true;
 
         }
@@ -192,8 +192,8 @@ namespace Gauss_elim.testing
         float max;
         ParallelExecutor P_exe = new ParallelExecutor();
         MatrixGenerator generator;
-        string file;
-        public tests(float min, float max, string file)
+       
+        public tests(float min, float max)
         {
             this.min = min;
             this.max = max;
@@ -289,7 +289,7 @@ namespace Gauss_elim.testing
 
                 //__ASM_
                 P_exe.run_asm(file_inpt, threads, file_outp_asm, file_resAsm);
-                isCorrect = generator.VerifyResults(file_resAsm, out message);
+                isCorrect = generator.VerifyResults(file_resAsm, out message, "asm");
 
                 Console.WriteLine(message);
 
@@ -306,24 +306,24 @@ namespace Gauss_elim.testing
                 }
                 Console.ResetColor();
 
-                //////__CPP__
-                //P_exe.run_cpp(file_inpt, threads, file_outp_cpp, file_resCpp);
-                //isCorrect = generator.VerifyResults(file_resCpp, out message);
-                //// 3. Wypisz zwrócony komunikat w konsoli
-                //Console.WriteLine(message);
+                ////__CPP__
+                P_exe.run_cpp(file_inpt, threads, file_outp_cpp, file_resCpp);
+                isCorrect = generator.VerifyResults(file_resCpp, out message, "cpp");
+                // 3. Wypisz zwrócony komunikat w konsoli
+                Console.WriteLine(message);
 
-                //// 4. (Opcjonalnie) Możesz też zareagować na wynik bool
-                //if (isCorrect)
-                //{
-                //    Console.ForegroundColor = ConsoleColor.Green;
-                //    Console.WriteLine("Test zaliczony!");
-                //}
-                //else
-                //{
-                //    Console.ForegroundColor = ConsoleColor.Red;
-                //    Console.WriteLine("Test niezaliczony.");
-                //}
-                //Console.ResetColor();
+                // 4. (Opcjonalnie) Możesz też zareagować na wynik bool
+                if (isCorrect)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Test zaliczony!");
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Test niezaliczony.");
+                }
+                Console.ResetColor();
 
             }
         }

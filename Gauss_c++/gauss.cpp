@@ -116,14 +116,14 @@ void MatrixHandler_cpp:: GaussElimination() {
         
         
         ApplyPivot(y);
-        pivot = at(y, y);
+       
 
-        if (std::fabs(pivot) > EPS) {
+        if (std::fabs(at(y, y)) > EPS) {
 
 			
             for (int n = y; n < rows - 1; n++) // each row -> different thread
             {
-                float factor = at(n + 1, y) / pivot;
+                float factor = at(n + 1, y) / at(y, y);
                 for (int j = y; j < cols; j++) {
 
                     at(n+1, j) -= factor * at(y, j); // factor* pivot[j]
@@ -154,16 +154,16 @@ void MatrixHandler_cpp::print_matrix(){
 }
 /*dla wielowatkowej postaci */
 void MatrixHandler_cpp::GaussEliminationStep(int pivotRow, int y) {
-    if (std::fabs(pivot) > EPS) {
+   
 
+    float factor = at(pivotRow + 1, y) / at(y, y); //pivot = at(y,y);
 
-        float factor = at(pivotRow + 1, y) / at(y, y); //pivot = at(y,y);
-        for (int j = y; j < cols; j++) {
+    for (int j = y; j < cols; j++) {
 
-            at(pivotRow + 1, j) -= factor * at(y, j); // factor* pivot[j]
-        }
-
+        at(pivotRow + 1, j) -= factor * at(y, j); // factor* pivot[j]
     }
+
+    
 
 }
        

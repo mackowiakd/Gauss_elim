@@ -15,7 +15,7 @@ class MatrixHandler_cpp {
 public:
     int rows = 0;
     int cols = 0;
-    float pivot = 10.0f;
+  
     const float EPS_ABS = 1e-6f;
     const float EPS_REL = 1e-4f;
     std::vector<float> data;        // macierz w postaci 1D (row-major)
@@ -26,9 +26,6 @@ public:
     MatrixHandler_cpp(const std::string& path) {
         LoadMatrixFromFile(path);
     }
-    void set_pivot(float val) {
-        pivot = val;
-	}
    
     void LoadMatrixFromFile(const std::string& path);
     void print_matrix();

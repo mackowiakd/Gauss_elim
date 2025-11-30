@@ -23,14 +23,14 @@ namespace Gauss_elim
         [STAThread]
         static void Main()
         {
-       
+
             //string mode = "release"; //"debug"; //
-            float min = -137.25f;
-            float max =55.00f;
+            float min = -98.20f;
+            float max = 102.80f;
             string mode = "debug";
 
-            tests t = new tests(min, max, "testy_debug2.0");
-           // t.back_sub_test("SLN");
+            tests t = new tests(min, max);
+            // t.back_sub_test("SLN");
             t.run_tests(mode);
 
             //string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"macierz_rozszerz");

@@ -36,6 +36,10 @@ extern "C" {
         return ptr->cols;
     };
     __declspec(dllexport)
+        float get_data_at(MatrixHandler_cpp* ptr, int r, int c) {
+        return ptr->at(r, c);
+    };
+    __declspec(dllexport)
 		float get_eps_abs(MatrixHandler_cpp* ptr) {     
         return ptr->EPS_ABS;
 	};

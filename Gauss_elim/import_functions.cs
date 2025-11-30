@@ -62,6 +62,9 @@ namespace Gauss_elim.NativeMethods{
         public static extern void apply_pivot(IntPtr matrixPtr, int currentRow);
 
         [DllImport(CppPath, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float  get_data_at(IntPtr matrixPtr, int r, int c);
+
+        [DllImport(CppPath, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_rows(IntPtr matrixPtr);
 
         [DllImport(CppPath, CallingConvention = CallingConvention.Cdecl)]

@@ -126,13 +126,14 @@ namespace Gauss_elim.threading
                 // pivot dla aktualnej kolumny
                 NativeMethods.import_func.apply_pivot(matrixPtr, y);
 
-                
-                Parallel.For(y , rows - 1, new ParallelOptions { MaxDegreeOfParallelism = threadCount }, row_elim =>
+                if (Math.Abs(NativeMethods.import_func.get_data_at(matrixPtr,y,y)) > 1.0e-6f)
                 {
-                    NativeMethods.import_func.gauss_step(matrixPtr,row_elim,y);
-                  
-                });
+                    Parallel.For(y, rows - 1, new ParallelOptions { MaxDegreeOfParallelism = threadCount }, row_elim =>
+                {
+                    NativeMethods.import_func.gauss_step(matrixPtr, row_elim, y);
 
+                });
+                }
                 // ptr->ZeroUntilEps(y, y);
                 NativeMethods.import_func.zero_until_eps(matrixPtr, y, y);
             }
