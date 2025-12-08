@@ -25,13 +25,15 @@ namespace Gauss_elim
         {
 
             //string mode = "release"; //"debug"; //
-            float min = -98.20f;
-            float max = 102.80f;
-            string mode = "debug";
+            float min = -13.79f;
+            float max = 11.84f;
+            string mode = "release";
 
             tests t = new tests(min, max);
             // t.back_sub_test("SLN");
-            t.run_tests(mode);
+
+            for(int i = 1; i <= 6; i ++)
+                t.run_tests(mode, i);
 
             //string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"macierz_rozszerz");
             //Directory.CreateDirectory(baseDir); // upewnia się, że katalog istnieje

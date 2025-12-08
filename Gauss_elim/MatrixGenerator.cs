@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Net.Mime.MediaTypeNames;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
 
 namespace Gauss_elim.testing
 {
@@ -202,12 +203,12 @@ namespace Gauss_elim.testing
           
 
         }
-        public void run_tests(string config) {
+        public void run_tests(string config, int iter) {
             string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"test_data_{config}");
             string resultDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test_results");
             Directory.CreateDirectory(baseDir); // upewnia się, że katalog istnieje
             Directory.CreateDirectory(resultDir);
-            CsvLogger logger = new CsvLogger($"results_{config}.csv");
+            CsvLogger logger = new CsvLogger($"results_{config}_{iter}.csv");
 
            
                 
