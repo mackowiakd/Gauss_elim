@@ -2,7 +2,6 @@
 using Gauss_elim.MatrixHandler_ASM;
 using Gauss_elim.testing;
 using Gauss_elim.threading;
-using GUI;
 using Microsoft.SqlServer.Server;
 using System;
 using System.Collections.Generic;
@@ -25,15 +24,19 @@ namespace Gauss_elim
         {
 
             //string mode = "release"; //"debug"; //
-            float min = -13.79f;
-            float max = 11.84f;
-            string mode = "release";
+            //float min = -138.79f;
+            //float max = 97.84f;
+            //string file_output = "test_output.txt"; 
+            //string mode = "release_justO1";
 
-            tests t = new tests(min, max);
+            // tests t = new tests(min, max);
             // t.back_sub_test("SLN");
 
-            for(int i = 1; i <= 6; i ++)
-                t.run_tests(mode, i);
+            memory_test M = new memory_test();
+            M.test_sequnetial_asm("memory_test_sequential_asm");
+
+            //for (int i = 1; i <= 6; i++)
+            //    t.run_tests(mode, i);
 
             //string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"macierz_rozszerz");
             //Directory.CreateDirectory(baseDir); // upewnia się, że katalog istnieje

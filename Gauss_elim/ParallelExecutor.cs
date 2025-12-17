@@ -44,6 +44,13 @@ namespace Gauss_elim.threading
             return sw.ElapsedMilliseconds;
            //Console.WriteLine($"Czas wykonania równoległej eliminacji Gaussa (CPP): {sw.ElapsedMilliseconds} ms");
         }
+
+        public void run_asm_sequential(string input1, string outp, string res)
+        {
+            asm_parallel matrixAsm = new asm_parallel(input1, 1, outp, res);
+            matrixAsm.Gauss_sequential();
+            matrixAsm.Dispose();
+        }
     }
 
     public class asm_parallel
@@ -86,7 +93,14 @@ namespace Gauss_elim.threading
             
 
         }
-        
+        public void Gauss_sequential()
+        {
+            matrix.checkSize();
+            matrix.GaussEliminationManaged();
+            matrix.BackSubstitution();
+        }
+
+
         public void Dispose()
         {
             matrix.SaveMatrixToFile(file_outp);

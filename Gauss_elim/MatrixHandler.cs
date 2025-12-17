@@ -234,14 +234,15 @@ namespace Gauss_elim.MatrixHandler_ASM
                 ApplyPivot(y);
                
                 float pivot = data[y * cols + (y)];
-   
-             
 
+              
                 for (int n = y; n < rows-1 ; n++) // kazde n wiersz dla innega watku
                 {
                     float elim = data[(n + 1) * cols + (y)]; // element do eliminacji z rowNext
                     float factor = elim / pivot; // 3. Oblicz współczynnik JEDEN RAZ
 
+                  
+                   
                     //dzielenie wiersza na czesci po 8 float 
                     for (int x = 0; x < cols; x += ymm)
                     {

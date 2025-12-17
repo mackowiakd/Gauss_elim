@@ -1,5 +1,8 @@
 
 .data
+
+    ; Dziêki temu zobaczymy, czy utnie po³owê (liczb od 5.0 do 8.0)
+    MyTestPattern REAL4 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0
    
   
    
@@ -17,24 +20,31 @@ PUBLIC gauss_elimination
 
 gauss_elimination proc
    
+
     ; RCX = ptr rowN 256 bit
     ; RDX = ptr rowNext 256 bit
     ; XMM2 = gotowy wspó³czynnik 'factor' (przekazany z C#)
     ; XMM3 = |pivot| (przekazany z C#)
 
+    vzeroupper
+  
+
+ 
    ; ---------------------------------------------------------
     ; KROK A: Obliczenie Progu (Threshold)
     ; Wzór: Threshold = EPS_ABS + (EPS_REL * |pivot|)
     ; Robimy to na skalarach (XMM), bo wynik jest jedn¹ liczb¹.
     ; ---------------------------------------------------------
    ; 2. Oblicz EPS_REL * |pivot|
-    movss  xmm4, dword ptr [eps_rel]
-    mulss  xmm3, xmm4              ; XMM3 = |pivot| * eps_rel
+    vmovss  xmm4, dword ptr [eps_rel]      ; DODANO 'v'
+    vmulss  xmm3, xmm3, xmm4               ; DODANO 'v' i trzeci operand (dest, src1, src2)
 
     ; 3. Dodaj EPS_ABS
-    movss  xmm4, dword ptr [eps_abs]
-    addss  xmm3, xmm4              ; XMM3 = eps_abs + (|pivot| * eps_rel)
-                                   ; Teraz XMM3 zawiera nasz finalny THRESHOLD
+    vmovss  xmm4, dword ptr [eps_abs]      ; 
+    vaddss  xmm3, xmm3, xmm4               ; 
+
+    ; Teraz procesor jest ca³y czas w trybie AVX.
+    ; Górne po³ówki rejestrów s¹ bezpieczne
 
     ; ---------------------------------------------------------
     ; KROK B: Przygotowanie wektorów YMM
@@ -80,9 +90,14 @@ gauss_elimination proc
     ; KROK E: Zapis
     ; ---------------------------------------------------------
 
+
+
+   
     vmovups [rdx], ymm1                  ; nadpisz ca³y wiersz Next
     vzeroupper                           ;
   
+
+
     ret  
     
 gauss_elimination endp;
