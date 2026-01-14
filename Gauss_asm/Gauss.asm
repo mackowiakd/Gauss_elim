@@ -1,9 +1,6 @@
 
 .data
 
-    ; Dziêki temu zobaczymy, czy utnie po³owê (liczb od 5.0 do 8.0)
-    MyTestPattern REAL4 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0
-   
   
    
     mask_abs  DWORD 8 dup(7FFFFFFFh) ; Maska do zerowania bitu znaku (dla 8 floatów)
@@ -27,15 +24,18 @@ gauss_elimination proc
     ; XMM3 = |pivot| (przekazany z C#)
 
     vzeroupper
+
+
+
   
 
  
-   ; ---------------------------------------------------------
+    ; ---------------------------------------------------------
     ; KROK A: Obliczenie Progu (Threshold)
     ; Wzór: Threshold = EPS_ABS + (EPS_REL * |pivot|)
     ; Robimy to na skalarach (XMM), bo wynik jest jedn¹ liczb¹.
     ; ---------------------------------------------------------
-   ; 2. Oblicz EPS_REL * |pivot|
+    ; 2. Oblicz EPS_REL * |pivot|
     vmovss  xmm4, dword ptr [eps_rel]      ; DODANO 'v'
     vmulss  xmm3, xmm3, xmm4               ; DODANO 'v' i trzeci operand (dest, src1, src2)
 
@@ -89,8 +89,6 @@ gauss_elimination proc
     ; ---------------------------------------------------------
     ; KROK E: Zapis
     ; ---------------------------------------------------------
-
-
 
    
     vmovups [rdx], ymm1                  ; nadpisz ca³y wiersz Next
